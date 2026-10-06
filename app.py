@@ -58,7 +58,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-
 # --------------------------------------------------------
 # GLOBAL UI STYLING
 # --------------------------------------------------------
@@ -66,101 +65,99 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+        [data-testid="stAppViewContainer"] {
+            background-color: #F5F7FA;
+        }
 
-    [data-testid="stAppViewContainer"] {
-        background-color: #F5F7FA;
-    }
+        .block-container {
+            max-width: 1400px;
+            padding-top: 2rem;
+            padding-bottom: 3rem;
+        }
 
-    .block-container {
-        max-width: 1400px;
-        padding-top: 2rem;
-        padding-bottom: 3rem;
-    }
+        [data-testid="stSidebar"] {
+            background-color: #FFFFFF;
+            border-right: 1px solid #E2E8F0;
+        }
 
-    [data-testid="stSidebar"] {
-        background-color: #FFFFFF;
-        border-right: 1px solid #E2E8F0;
-    }
+        [data-testid="stSidebar"] .block-container {
+            padding-top: 2rem;
+        }
 
-    [data-testid="stSidebar"] .block-container {
-        padding-top: 2rem;
-    }
+        h1 {
+            color: #0F172A;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
 
-    h1 {
-        color: #0F172A;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-    }
+        h2 {
+            color: #0F172A;
+            font-weight: 750;
+        }
 
-    h2 {
-        color: #0F172A;
-        font-weight: 750;
-    }
+        h3 {
+            color: #1E293B;
+            font-weight: 700;
+        }
 
-    h3 {
-        color: #1E293B;
-        font-weight: 700;
-    }
+        .stButton > button {
+            border-radius: 10px;
+            border: 1px solid #CBD5E1;
+            font-weight: 600;
+            min-height: 42px;
+        }
 
-    .stButton > button {
-        border-radius: 10px;
-        border: 1px solid #CBD5E1;
-        font-weight: 600;
-        min-height: 42px;
-    }
+        .stButton > button:hover {
+            border-color: #15803D;
+            color: #15803D;
+        }
 
-    .stButton > button:hover {
-        border-color: #15803D;
-        color: #15803D;
-    }
+        .stButton > button[kind="primary"] {
+            background-color: #15803D;
+            border-color: #15803D;
+            color: white;
+        }
 
-    .stButton > button[kind="primary"] {
-        background-color: #15803D;
-        border-color: #15803D;
-        color: white;
-    }
+        .stButton > button[kind="primary"]:hover {
+            background-color: #166534;
+            border-color: #166534;
+            color: white;
+        }
 
-    .stButton > button[kind="primary"]:hover {
-        background-color: #166534;
-        border-color: #166534;
-        color: white;
-    }
+        [data-testid="stMetric"] {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 14px 16px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
 
-    [data-testid="stMetric"] {
-        background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 14px 16px;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-    }
+        [data-testid="stMetricLabel"] {
+            color: #64748B;
+            font-weight: 600;
+        }
 
-    [data-testid="stMetricLabel"] {
-        color: #64748B;
-        font-weight: 600;
-    }
+        [data-testid="stMetricValue"] {
+            color: #0F172A;
+            font-weight: 750;
+        }
 
-    [data-testid="stMetricValue"] {
-        color: #0F172A;
-        font-weight: 750;
-    }
+        [data-testid="stExpander"] {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
 
-    [data-testid="stExpander"] {
-        background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        margin-bottom: 10px;
-    }
+        [data-testid="stAlert"] {
+            border-radius: 10px;
+        }
 
-    [data-testid="stAlert"] {
-        border-radius: 10px;
-    }
-
-    hr {
-        border: none;
-        border-top: 1px solid #E2E8F0;
-        margin: 1.5rem 0;
-    }
-
+        hr {
+            border: none;
+            border-top: 1px solid #E2E8F0;
+            margin: 1.5rem 0;
+        }
     </style>
     """,
     unsafe_allow_html=True,
