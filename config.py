@@ -79,10 +79,10 @@ OVERALL_STRENGTH_PENALTY = 0.20
 #     rating >= 9.00
 #
 # Strong:
-#     8.00 <= rating < 9.00
+#     7.00 <= rating < 9.00
 #
 # Normal:
-#     rating < 8.00
+#     rating < 7.00
 #
 # IMPORTANT:
 # Strong and Elite are mutually exclusive.
@@ -90,7 +90,7 @@ OVERALL_STRENGTH_PENALTY = 0.20
 # ------------------------------------------------------------
 
 IMPACT_THRESHOLDS = {
-    "elite": 9.00,
+    "elite": 8.50,
     "strong": 7.00,
 }
 
@@ -106,9 +106,9 @@ IMPACT_THRESHOLDS = {
 # a greater concentration of high-impact ability.
 # ------------------------------------------------------------
 
-ELITE_PLAYER_PENALTY = 0.15
+ELITE_PLAYER_PENALTY = 0.30
 
-STRONG_PLAYER_PENALTY = 0.10
+STRONG_PLAYER_PENALTY = 0.20
 
 
 # ------------------------------------------------------------
