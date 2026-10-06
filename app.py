@@ -45,190 +45,12 @@ from backend.team_comparator import (
 # PAGE CONFIGURATION
 # ============================================================
 
-# st.set_page_config(
-#     page_title="Sunday Cricket Team Balancer",
-#     page_icon="🏏",
-#     layout="wide",
-# )
-
 st.set_page_config(
     page_title="Sunday Cricket Team Balancer",
     page_icon="🏏",
     layout="wide",
-    initial_sidebar_state="expanded",
 )
 
-# --------------------------------------------------------
-# GLOBAL UI STYLING
-# --------------------------------------------------------
-
-st.markdown(
-    """
-    <style>
-        [data-testid="stAppViewContainer"] {
-            background-color: #F5F7FA;
-        }
-
-        .block-container {
-            max-width: 1400px;
-            padding-top: 2rem;
-            padding-bottom: 3rem;
-        }
-
-        [data-testid="stSidebar"] {
-            background-color: #FFFFFF;
-            border-right: 1px solid #E2E8F0;
-        }
-
-        [data-testid="stSidebar"] .block-container {
-            padding-top: 2rem;
-        }
-
-        h1 {
-            color: #0F172A;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        h2 {
-            color: #0F172A;
-            font-weight: 750;
-        }
-
-        h3 {
-            color: #1E293B;
-            font-weight: 700;
-        }
-
-        .stButton > button {
-            border-radius: 10px;
-            border: 1px solid #CBD5E1;
-            font-weight: 600;
-            min-height: 42px;
-        }
-
-        .stButton > button:hover {
-            border-color: #15803D;
-            color: #15803D;
-        }
-
-        .stButton > button[kind="primary"] {
-            background-color: #15803D;
-            border-color: #15803D;
-            color: white;
-        }
-
-        .stButton > button[kind="primary"]:hover {
-            background-color: #166534;
-            border-color: #166534;
-            color: white;
-        }
-
-        [data-testid="stMetric"] {
-            background-color: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 12px;
-            padding: 14px 16px;
-            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-        }
-
-        [data-testid="stMetricLabel"] {
-            color: #64748B;
-            font-weight: 600;
-        }
-
-        [data-testid="stMetricValue"] {
-            color: #0F172A;
-            font-weight: 750;
-        }
-
-        [data-testid="stExpander"] {
-            background-color: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 12px;
-            margin-bottom: 10px;
-        }
-
-        [data-testid="stAlert"] {
-            border-radius: 10px;
-        }
-
-        hr {
-            border: none;
-            border-top: 1px solid #E2E8F0;
-            margin: 1.5rem 0;
-        }
-
-        /* --------------------------------------------------
-        Match Setup Card
-        -------------------------------------------------- */
-
-        .match-setup-card {
-            background-color: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 16px;
-            padding: 24px 26px;
-            margin-bottom: 24px;
-            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
-        }
-
-        .match-setup-title {
-            font-size: 22px;
-            font-weight: 750;
-            color: #0F172A;
-            margin-bottom: 4px;
-        }
-
-        .match-setup-subtitle {
-            font-size: 14px;
-            color: #64748B;
-            margin-bottom: 18px;
-        }
-
-        /* --------------------------------------------------
-        Team Cards
-        -------------------------------------------------- */
-
-        .team-card {
-            background-color: #FFFFFF;
-            border-radius: 16px;
-            padding: 20px 22px;
-            margin-bottom: 20px;
-            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
-        }
-
-        .team-card-a {
-            border: 2px solid #15803D;
-        }
-
-        .team-card-b {
-            border: 2px solid #2563EB;
-        }
-
-        .team-card-title {
-            font-size: 22px;
-            font-weight: 800;
-            margin-bottom: 4px;
-        }
-
-        .team-card-subtitle {
-            font-size: 13px;
-            color: #64748B;
-            margin-bottom: 18px;
-        }
-
-        .team-card-a .team-card-title {
-            color: #15803D;
-        }
-
-        .team-card-b .team-card-title {
-            color: #2563EB;
-        }
-
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
 
 # ============================================================
 # SERVICES
@@ -768,22 +590,8 @@ st.caption(
 
 if session.match_number == 0:
 
-    # st.header(
-    #     "Select Players for Match 1"
-    # )
-
-    st.markdown(
-        """
-        <div class="match-setup-title">
-            🏏 Create Match 1
-        </div>
-
-        <div class="match-setup-subtitle">
-            Select the players who are participating in today's match.
-            The balancer will automatically create the most balanced teams.
-        </div>
-        """,
-        unsafe_allow_html=True,
+    st.header(
+        "Select Players for Match 1"
     )
 
     st.info(
@@ -811,34 +619,17 @@ if session.match_number == 0:
         in selected_names
     ]
 
-    # st.write(
-    #     f"Selected players: "
-    #     f"**{len(selected_players)}**"
-    # )
-    selected_count = len(selected_players)
+    st.write(
+        f"Selected players: "
+        f"**{len(selected_players)}**"
+    )
 
-    if selected_count == 0:
-        st.info("👥 No players selected yet.")
-
-    elif selected_count == 1:
-        st.warning("👥 Select at least 2 players to generate teams.")
-
-    else:
-        st.success(
-            f"👥 {selected_count} players selected — ready to generate teams."
-        )
-        
     # At least two players are required to form teams.
     if len(selected_players) >= 2:
 
-        # if st.button(
-        #     "🏏 Generate Match 1",
-        #     type="primary",
-        # ):
         if st.button(
             "🏏 Generate Match 1",
             type="primary",
-            use_container_width=True,
         ):
 
             # Store the selected players in the session.
@@ -873,6 +664,10 @@ if session.match_number == 0:
 # ============================================================
 
 else:
+
+    # --------------------------------------------------------
+    # SIDEBAR HEADER
+    # --------------------------------------------------------
 
     st.sidebar.title(
         "🏏 Sunday Cricket"
@@ -1147,39 +942,26 @@ if session.current_teams:
 
     with col_a:
 
-        with st.container(
-            border=True,
-        ):
+        st.subheader(
+            "🅰️ Team A"
+        )
 
-            st.markdown(
-                """
-                <div class="team-card-title">
-                    🟢 Team A
-                </div>
+        team_a_display = order_team_for_display(
+            result["team_a"],
+            result["shared_player"],
+        )
 
-                <div class="team-card-subtitle">
-                    Balanced Team
-                </div>
-                """,
-                unsafe_allow_html=True,
+        for player in team_a_display:
+
+            display_player(
+                player
             )
 
-            team_a_display = order_team_for_display(
-                result["team_a"],
-                result["shared_player"],
-            )
+        st.divider()
 
-            for player in team_a_display:
-
-                display_player(
-                    player
-                )
-
-            st.divider()
-
-            display_team_stats(
-                result["team_a"]
-            )
+        display_team_stats(
+            result["team_a"]
+        )
 
     # ========================================================
     # TEAM B
@@ -1187,39 +969,26 @@ if session.current_teams:
 
     with col_b:
 
-        with st.container(
-            border=True,
-        ):
+        st.subheader(
+            "🅱️ Team B"
+        )
 
-            st.markdown(
-                """
-                <div class="team-card-title">
-                    🔵 Team B
-                </div>
+        team_b_display = order_team_for_display(
+            result["team_b"],
+            result["shared_player"],
+        )
 
-                <div class="team-card-subtitle">
-                    Balanced Team
-                </div>
-                """,
-                unsafe_allow_html=True,
+        for player in team_b_display:
+
+            display_player(
+                player
             )
 
-            team_b_display = order_team_for_display(
-                result["team_b"],
-                result["shared_player"],
-            )
+        st.divider()
 
-            for player in team_b_display:
-
-                display_player(
-                    player
-                )
-
-            st.divider()
-
-            display_team_stats(
-                result["team_b"]
-            )
+        display_team_stats(
+            result["team_b"]
+        )
 
     # ========================================================
     # BALANCE SUMMARY
@@ -1274,6 +1043,7 @@ if session.current_teams:
             previous,
             result,
         )
+
 
 # ============================================================
 # MANUAL TEAM BUILDER & TEAM COMPARISON
