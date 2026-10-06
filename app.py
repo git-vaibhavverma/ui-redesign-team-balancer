@@ -159,46 +159,6 @@ st.markdown(
             margin: 1.5rem 0;
         }
 
-        /* --------------------------------------------------
-        App Header
-        -------------------------------------------------- */
-
-        .app-header {
-            background: linear-gradient(
-                135deg,
-                #0F172A 0%,
-                #163B2A 100%
-            );
-
-            padding: 28px 32px;
-            border-radius: 16px;
-            margin-bottom: 28px;
-
-            box-shadow:
-                0 4px 12px rgba(15, 23, 42, 0.10);
-        }
-
-        .app-header-eyebrow {
-            font-size: 13px;
-            font-weight: 700;
-            color: #86EFAC;
-            letter-spacing: 1.5px;
-            margin-bottom: 6px;
-        }
-
-        .app-header-title {
-            font-size: 32px;
-            font-weight: 800;
-            color: #FFFFFF;
-            line-height: 1.2;
-        }
-
-        .app-header-subtitle {
-            font-size: 15px;
-            color: #CBD5E1;
-            margin-top: 10px;
-            max-width: 700px;
-        }
     </style>
     """,
     unsafe_allow_html=True,
@@ -720,38 +680,13 @@ def order_team_for_display(team, shared_player=None):
 # APPLICATION HEADER
 # ============================================================
 
-# st.title(
-#     "🏏 Sunday Cricket Team Balancer"
-# )
+st.title(
+    "🏏 Sunday Cricket Team Balancer"
+)
 
-# st.caption(
-#     "Select players for each match and generate balanced "
-#     "teams while minimizing unnecessary reshuffling."
-# )
-# --------------------------------------------------------
-# APP HEADER
-# --------------------------------------------------------
-
-st.markdown(
-    """
-    <div class="app-header">
-
-        <div class="app-header-eyebrow">
-            SUNDAY CRICKET
-        </div>
-
-        <div class="app-header-title">
-            🏏 Team Balancer
-        </div>
-
-        <div class="app-header-subtitle">
-            Build balanced teams while minimizing unnecessary
-            reshuffling between matches.
-        </div>
-
-    </div>
-    """,
-    unsafe_allow_html=True,
+st.caption(
+    "Select players for each match and generate balanced "
+    "teams while minimizing unnecessary reshuffling."
 )
 
 
