@@ -28,8 +28,8 @@
 # ------------------------------------------------------------
 
 SKILL_WEIGHTS = {
-    "batting": 0.35,
-    "bowling": 0.60,
+    "batting": 0.40,
+    "bowling": 0.55,
     "fielding": 0.05,
 }
 
@@ -129,4 +129,4 @@ STRONG_PLAYER_PENALTY = 0.20
 # are NOT considered moves.
 # ------------------------------------------------------------
 
-RESHUFFLE_PENALTY = 0.15
+RESHUFFLE_PENALTY = 0.05
