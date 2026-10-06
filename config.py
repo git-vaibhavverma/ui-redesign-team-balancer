@@ -129,4 +129,4 @@ STRONG_PLAYER_PENALTY = 0.20
 # are NOT considered moves.
 # ------------------------------------------------------------
 
-RESHUFFLE_PENALTY = 0.00
+RESHUFFLE_PENALTY = 0.01
