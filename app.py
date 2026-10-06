@@ -58,6 +58,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+
 # --------------------------------------------------------
 # GLOBAL UI STYLING
 # --------------------------------------------------------
@@ -65,10 +66,6 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-
-    /* --------------------------------------------------
-       Main application layout
-       -------------------------------------------------- */
 
     [data-testid="stAppViewContainer"] {
         background-color: #F5F7FA;
@@ -80,11 +77,6 @@ st.markdown(
         padding-bottom: 3rem;
     }
 
-
-    /* --------------------------------------------------
-       Sidebar
-       -------------------------------------------------- */
-
     [data-testid="stSidebar"] {
         background-color: #FFFFFF;
         border-right: 1px solid #E2E8F0;
@@ -93,11 +85,6 @@ st.markdown(
     [data-testid="stSidebar"] .block-container {
         padding-top: 2rem;
     }
-
-
-    /* --------------------------------------------------
-       Main title
-       -------------------------------------------------- */
 
     h1 {
         color: #0F172A;
@@ -115,28 +102,17 @@ st.markdown(
         font-weight: 700;
     }
 
-
-    /* --------------------------------------------------
-       Buttons
-       -------------------------------------------------- */
-
     .stButton > button {
         border-radius: 10px;
         border: 1px solid #CBD5E1;
         font-weight: 600;
         min-height: 42px;
-        transition: all 0.15s ease;
     }
 
     .stButton > button:hover {
         border-color: #15803D;
         color: #15803D;
     }
-
-
-    /* --------------------------------------------------
-       Primary buttons
-       -------------------------------------------------- */
 
     .stButton > button[kind="primary"] {
         background-color: #15803D;
@@ -149,11 +125,6 @@ st.markdown(
         border-color: #166534;
         color: white;
     }
-
-
-    /* --------------------------------------------------
-       Metrics
-       -------------------------------------------------- */
 
     [data-testid="stMetric"] {
         background-color: #FFFFFF;
@@ -173,11 +144,6 @@ st.markdown(
         font-weight: 750;
     }
 
-
-    /* --------------------------------------------------
-       Expanders
-       -------------------------------------------------- */
-
     [data-testid="stExpander"] {
         background-color: #FFFFFF;
         border: 1px solid #E2E8F0;
@@ -185,29 +151,9 @@ st.markdown(
         margin-bottom: 10px;
     }
 
-
-    /* --------------------------------------------------
-       Info / warning / success messages
-       -------------------------------------------------- */
-
     [data-testid="stAlert"] {
         border-radius: 10px;
     }
-
-
-    /* --------------------------------------------------
-       Select boxes / multiselects
-       -------------------------------------------------- */
-
-    [data-testid="stSelectbox"] > div,
-    [data-testid="stMultiSelect"] > div {
-        border-radius: 10px;
-    }
-
-
-    /* --------------------------------------------------
-       Horizontal divider
-       -------------------------------------------------- */
 
     hr {
         border: none;
