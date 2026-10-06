@@ -185,6 +185,46 @@ st.markdown(
             margin-bottom: 18px;
         }
 
+        /* --------------------------------------------------
+        Team Cards
+        -------------------------------------------------- */
+
+        .team-card {
+            background-color: #FFFFFF;
+            border-radius: 16px;
+            padding: 20px 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
+        }
+
+        .team-card-a {
+            border: 2px solid #15803D;
+        }
+
+        .team-card-b {
+            border: 2px solid #2563EB;
+        }
+
+        .team-card-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .team-card-subtitle {
+            font-size: 13px;
+            color: #64748B;
+            margin-bottom: 18px;
+        }
+
+        .team-card-a .team-card-title {
+            color: #15803D;
+        }
+
+        .team-card-b .team-card-title {
+            color: #2563EB;
+        }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -1107,26 +1147,39 @@ if session.current_teams:
 
     with col_a:
 
-        st.subheader(
-            "🅰️ Team A"
-        )
+        with st.container(
+            border=True,
+        ):
 
-        team_a_display = order_team_for_display(
-            result["team_a"],
-            result["shared_player"],
-        )
+            st.markdown(
+                """
+                <div class="team-card-title">
+                    🟢 Team A
+                </div>
 
-        for player in team_a_display:
-
-            display_player(
-                player
+                <div class="team-card-subtitle">
+                    Balanced Team
+                </div>
+                """,
+                unsafe_allow_html=True,
             )
 
-        st.divider()
+            team_a_display = order_team_for_display(
+                result["team_a"],
+                result["shared_player"],
+            )
 
-        display_team_stats(
-            result["team_a"]
-        )
+            for player in team_a_display:
+
+                display_player(
+                    player
+                )
+
+            st.divider()
+
+            display_team_stats(
+                result["team_a"]
+            )
 
     # ========================================================
     # TEAM B
@@ -1134,26 +1187,39 @@ if session.current_teams:
 
     with col_b:
 
-        st.subheader(
-            "🅱️ Team B"
-        )
+        with st.container(
+            border=True,
+        ):
 
-        team_b_display = order_team_for_display(
-            result["team_b"],
-            result["shared_player"],
-        )
+            st.markdown(
+                """
+                <div class="team-card-title">
+                    🔵 Team B
+                </div>
 
-        for player in team_b_display:
-
-            display_player(
-                player
+                <div class="team-card-subtitle">
+                    Balanced Team
+                </div>
+                """,
+                unsafe_allow_html=True,
             )
 
-        st.divider()
+            team_b_display = order_team_for_display(
+                result["team_b"],
+                result["shared_player"],
+            )
 
-        display_team_stats(
-            result["team_b"]
-        )
+            for player in team_b_display:
+
+                display_player(
+                    player
+                )
+
+            st.divider()
+
+            display_team_stats(
+                result["team_b"]
+            )
 
     # ========================================================
     # BALANCE SUMMARY
@@ -1208,7 +1274,6 @@ if session.current_teams:
             previous,
             result,
         )
-
 
 # ============================================================
 # MANUAL TEAM BUILDER & TEAM COMPARISON
