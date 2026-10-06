@@ -683,6 +683,92 @@ else:
         session.match_number,
     )
 
+    # --------------------------------------------------------
+    # RESET SESSION
+    # --------------------------------------------------------
+    #
+    # Resetting clears the current cricket match session and
+    # returns the app to Match 1.
+    #
+    # A confirmation step is used to prevent accidentally
+    # resetting an active match.
+    # --------------------------------------------------------
+
+    st.sidebar.divider()
+
+    if st.sidebar.button(
+        "🔄 Reset / Start New Session",
+        help="Clear the current matches and start again from Match 1.",
+    ):
+
+        # Don't reset immediately.
+        # Instead, ask the user for confirmation.
+
+        st.session_state.confirm_reset = True
+
+
+    # --------------------------------------------------------
+    # RESET CONFIRMATION
+    # --------------------------------------------------------
+
+    if st.session_state.get(
+        "confirm_reset",
+        False,
+    ):
+
+        st.sidebar.warning(
+            "⚠️ Are you sure? This will clear the "
+            "current match session and return to Match 1."
+        )
+
+        confirm_col1, confirm_col2 = (
+            st.sidebar.columns(2)
+        )
+
+        with confirm_col1:
+
+            if st.button(
+                "Yes, Reset",
+                key="confirm_reset_button",
+            ):
+
+                # Remove the current cricket session.
+                del st.session_state.cricket_session
+
+                # Remove previous-match information.
+                st.session_state.pop(
+                    "previous_match",
+                    None,
+                )
+
+                # Remove the confirmation flag.
+                st.session_state.pop(
+                    "confirm_reset",
+                    None,
+                )
+
+                # Create a fresh CricketSession immediately.
+                st.session_state.cricket_session = (
+                    CricketSession()
+                )
+
+                st.rerun()
+
+
+        with confirm_col2:
+
+            if st.button(
+                "Cancel",
+                key="cancel_reset_button",
+            ):
+
+                st.session_state.pop(
+                    "confirm_reset",
+                    None,
+                )
+
+                st.rerun()
+
     # ========================================================
     # ADD PLAYER
     # ========================================================
