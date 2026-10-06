@@ -159,6 +159,32 @@ st.markdown(
             margin: 1.5rem 0;
         }
 
+        /* --------------------------------------------------
+        Match Setup Card
+        -------------------------------------------------- */
+
+        .match-setup-card {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+        }
+
+        .match-setup-title {
+            font-size: 22px;
+            font-weight: 750;
+            color: #0F172A;
+            margin-bottom: 4px;
+        }
+
+        .match-setup-subtitle {
+            font-size: 14px;
+            color: #64748B;
+            margin-bottom: 18px;
+        }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -702,8 +728,22 @@ st.caption(
 
 if session.match_number == 0:
 
-    st.header(
-        "Select Players for Match 1"
+    # st.header(
+    #     "Select Players for Match 1"
+    # )
+
+    st.markdown(
+        """
+        <div class="match-setup-title">
+            🏏 Create Match 1
+        </div>
+
+        <div class="match-setup-subtitle">
+            Select the players who are participating in today's match.
+            The balancer will automatically create the most balanced teams.
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
     st.info(
@@ -731,17 +771,34 @@ if session.match_number == 0:
         in selected_names
     ]
 
-    st.write(
-        f"Selected players: "
-        f"**{len(selected_players)}**"
-    )
+    # st.write(
+    #     f"Selected players: "
+    #     f"**{len(selected_players)}**"
+    # )
+    selected_count = len(selected_players)
 
+    if selected_count == 0:
+        st.info("👥 No players selected yet.")
+
+    elif selected_count == 1:
+        st.warning("👥 Select at least 2 players to generate teams.")
+
+    else:
+        st.success(
+            f"👥 {selected_count} players selected — ready to generate teams."
+        )
+        
     # At least two players are required to form teams.
     if len(selected_players) >= 2:
 
+        # if st.button(
+        #     "🏏 Generate Match 1",
+        #     type="primary",
+        # ):
         if st.button(
             "🏏 Generate Match 1",
             type="primary",
+            use_container_width=True,
         ):
 
             # Store the selected players in the session.
