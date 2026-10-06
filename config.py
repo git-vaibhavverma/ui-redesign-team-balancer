@@ -28,9 +28,9 @@
 # ------------------------------------------------------------
 
 SKILL_WEIGHTS = {
-    "batting": 0.40,
-    "bowling": 0.55,
-    "fielding": 0.05,
+    "batting": 0.45,
+    "bowling": 0.45,
+    "fielding": 0.10,
 }
 
 
@@ -106,9 +106,9 @@ IMPACT_THRESHOLDS = {
 # a greater concentration of high-impact ability.
 # ------------------------------------------------------------
 
-ELITE_PLAYER_PENALTY = 0.30
+ELITE_PLAYER_PENALTY = 0.15
 
-STRONG_PLAYER_PENALTY = 0.20
+STRONG_PLAYER_PENALTY = 0.10
 
 
 # ------------------------------------------------------------
@@ -129,4 +129,4 @@ STRONG_PLAYER_PENALTY = 0.20
 # are NOT considered moves.
 # ------------------------------------------------------------
 
-RESHUFFLE_PENALTY = 0.05
+RESHUFFLE_PENALTY = 0.00
