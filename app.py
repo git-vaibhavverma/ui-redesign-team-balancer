@@ -47,7 +47,8 @@ st.markdown(
       .stApp { background:var(--prism-bg); color:var(--prism-text); }
       [data-testid="stHeader"] { background:rgba(11,18,32,.94); }
       [data-testid="stSidebar"] { display:none; }
-      .block-container { max-width:1160px; padding-top:1.3rem; padding-bottom:3.5rem; }
+      .block-container { max-width:1160px; padding-top:2.2rem; padding-bottom:3.5rem; }
+      [data-testid="stMainMenu"] { display:none; }
       h1,h2,h3,h4,p,label,[data-testid="stMarkdownContainer"] { color:var(--prism-text); }
       h1 { letter-spacing:-.045em; font-weight:800; }
       h2,h3 { letter-spacing:-.025em; }
@@ -87,20 +88,22 @@ st.markdown(
       [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] { margin-top:0; }
       [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] label { padding:0; }
       [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] label p { display:none; }
+      [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] { position:relative; z-index:4; }
       .prism-rank { color:var(--prism-lime); font-size:.75rem; font-weight:850; white-space:nowrap; }
       .prism-player-name { color:var(--prism-text); font-size:.94rem; font-weight:780; line-height:1.25; }
       .prism-player-meta { color:var(--prism-muted); font-size:.74rem; margin-top:.28rem; line-height:1.5; }
       .prism-role { color:#D8E1EF; border:1px solid var(--prism-border); border-radius:999px; padding:.12rem .42rem; font-size:.64rem; font-weight:800; display:inline-block; white-space:nowrap; }
       .prism-total { color:var(--prism-lime); font-weight:850; font-size:.96rem; text-align:right; white-space:nowrap; }
       .prism-skill-label { color:var(--prism-muted); font-size:.66rem; text-align:right; }
-      .prism-row-click-hint { color:var(--prism-muted); font-size:.65rem; }
+      .prism-row-click-hint { display:none; }
 
       /* Streamlit button inside the details area acts as a full-row click target. */
       [class*="st-key-player-selection-row-"] [data-testid="stButton"] {
-        position:absolute; left:3.25rem; right:3.2rem; top:0; bottom:0; z-index:2; opacity:.015;
+        position:absolute !important; left:3rem; right:3rem; top:0; bottom:0; z-index:2; opacity:0 !important;
+        width:auto; height:100%; margin:0 !important; padding:0 !important;
       }
       [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button {
-        width:100%; height:100%; min-height:100%; background:transparent; color:var(--prism-text); border:0; border-radius:8px;
+        position:absolute; inset:0; width:100%; height:100%; min-height:100%; background:transparent; color:var(--prism-text); border:0; border-radius:8px;
         padding:0; box-shadow:none; text-align:left; font-size:.01rem; line-height:.01rem;
       }
       [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button:hover { background:rgba(183,243,74,.07); color:var(--prism-text); border:0; }
@@ -116,8 +119,13 @@ st.markdown(
       /* Team summary cards */
       .prism-team-card {
         background:linear-gradient(145deg,#192A40 0%,#111D30 100%);
-        border:1px solid var(--prism-border); border-radius:18px; padding:1rem 1.05rem .9rem; min-height:190px;
+        border:1px solid var(--prism-border); border-radius:18px; padding:1rem 1.05rem .9rem; min-height:260px;
+        transition:border-color .16s ease, box-shadow .16s ease;
       }
+      .prism-team-card.is-selected { border:1.5px solid var(--prism-lime); box-shadow:0 0 0 1px rgba(183,243,74,.16),0 8px 24px rgba(0,0,0,.16); }
+      .prism-team-summary-head { display:flex; align-items:flex-start; justify-content:space-between; gap:.5rem; }
+      .prism-selected-tag { color:#101827; background:var(--prism-lime); border-radius:999px; padding:.18rem .48rem; font-size:.62rem; font-weight:900; letter-spacing:.04em; }
+      .prism-shared-tag { color:#101827; background:var(--prism-lime); border-radius:999px; padding:.12rem .42rem; font-size:.62rem; font-weight:900; margin-left:.4rem; white-space:nowrap; }
       .prism-team-title { font-size:1rem; font-weight:850; margin-bottom:.15rem; }
       .prism-team-score { color:var(--prism-lime); font-size:1.8rem; font-weight:900; letter-spacing:-.045em; }
       .prism-team-small { color:var(--prism-muted); font-size:.76rem; }
@@ -137,7 +145,7 @@ st.markdown(
       .prism-player-card { border:1px solid var(--prism-border); border-radius:13px; padding:.7rem .8rem; margin-bottom:.45rem; background:rgba(21,34,56,.58); }
       .prism-player-card.shared { border-color:rgba(183,243,74,.42); }
       .prism-player-card-top { display:flex; justify-content:space-between; gap:.5rem; align-items:center; }
-      .prism-player-card-name { font-size:.9rem; font-weight:780; }
+      .prism-player-card-name { display:flex; align-items:center; flex-wrap:wrap; min-width:0; font-size:.9rem; font-weight:780; }
       .prism-player-card-rank { color:var(--prism-lime); font-size:.72rem; font-weight:850; white-space:nowrap; }
       .prism-player-card-skills { display:flex; flex-wrap:wrap; gap:.28rem .7rem; color:var(--prism-muted); font-size:.72rem; margin-top:.43rem; }
       .prism-player-card-skills b { color:var(--prism-text); font-weight:750; }
@@ -148,18 +156,25 @@ st.markdown(
       [data-testid="stDialog"] { border:1px solid var(--prism-border); }
 
       @media (max-width:760px) {
-        .block-container { padding-left:.85rem; padding-right:.85rem; padding-top:.9rem; }
+        .block-container { padding-left:.85rem; padding-right:.85rem; padding-top:1.2rem; }
         h1 { font-size:1.85rem !important; }
         h2 { font-size:1.3rem !important; }
         .prism-team-card { min-height:0; padding:.8rem; }
-        .prism-team-score { font-size:1.5rem; }
+        .prism-bar-row { display:none; }
+        .prism-team-small { font-size:.67rem; }
+        .prism-team-title { font-size:.88rem; }
+        .prism-team-score { font-size:1.35rem; }
+        .prism-selected-tag { font-size:.55rem; padding:.15rem .35rem; }
+        .prism-player-card-top { align-items:flex-start; }
+        .prism-player-card-name { overflow-wrap:anywhere; }
+        .prism-player-card-rank { flex-shrink:0; }
         .prism-stat-pill { font-size:.64rem; padding:.22rem .34rem; }
         .prism-player-meta { font-size:.69rem; }
         [class*="st-key-player-selection-row-"] { padding:.48rem .42rem; }
         .st-key-team-a-desktop, .st-key-team-b-desktop { display:none; }
         .st-key-mobile-team-list { display:block; }
-        .st-key-team-a-card-select, .st-key-team-b-card-select { display:block; position:absolute; left:0; right:0; top:0; height:190px; opacity:.015; z-index:3; }
-        .st-key-team-a-card-select [data-testid="stButton"], .st-key-team-b-card-select [data-testid="stButton"] { height:100%; }
+        .st-key-team-a-card-select, .st-key-team-b-card-select { display:block; position:absolute; inset:0; opacity:0; z-index:3; pointer-events:none; }
+        .st-key-team-a-card-select [data-testid="stButton"], .st-key-team-b-card-select [data-testid="stButton"] { height:100%; pointer-events:auto; }
         .st-key-team-a-card-select button, .st-key-team-b-card-select button { width:100%; height:100%; min-height:100%; }
         .st-key-team-card-a, .st-key-team-card-b { position:relative; }
 
@@ -257,42 +272,47 @@ def render_skill_bar(label, value):
     )
 
 
-def render_team_summary(team_name, team):
+def render_team_summary(team_name, team, selected=False):
     stats = team_stats(team)
     roles = role_counts(team)
     impact = team_impact_counts(team)
     averages = team_skill_averages(team)
+    selected_tag = '<span class="prism-selected-tag">PLAYERS SHOWN</span>' if selected else ''
+    selected_class = " is-selected" if selected else ""
     st.markdown(
-        f'''<div class="prism-team-card">
-          <div class="prism-team-title">{html.escape(team_name)}</div>
-          <div class="prism-team-score">{float(stats['strength']):.2f}</div>
-          <div class="prism-team-small">Team strength · {len(team)} players</div>
-          <div style="margin-top:.6rem">
-            <span class="prism-stat-pill"><b>{impact['elite']}</b> Elite</span>
-            <span class="prism-stat-pill"><b>{impact['strong']}</b> Strong</span>
-            <span class="prism-stat-pill"><b>{roles['batters']}</b> Batters</span>
+        f'''<div class="prism-team-card{selected_class}">
+          <div class="prism-team-summary-head"><div>
+            <div class="prism-team-title">{html.escape(team_name)}</div>
+            <div class="prism-team-score">{float(stats['strength']):.2f}</div>
+            <div class="prism-team-small">TEAM STRENGTH · {len(team)} PLAYERS</div>
+          </div>{selected_tag}</div>
+          <div style="margin-top:.55rem"><span class="prism-stat-pill"><b>{impact['elite']}</b> Elite</span>
+            <span class="prism-stat-pill"><b>{impact['strong']}</b> Strong</span></div>
+          <div style="margin-top:.25rem"><span class="prism-stat-pill"><b>{roles['batters']}</b> Batters</span>
             <span class="prism-stat-pill"><b>{roles['bowlers']}</b> Bowlers</span>
             <span class="prism-stat-pill"><b>{roles['all_rounders']}</b> All-rounders</span>
-            <span class="prism-stat-pill"><b>{roles['field_players']}</b> Field</span>
-          </div>
+            <span class="prism-stat-pill"><b>{roles['field_players']}</b> Fielders</span></div>
+          <div class="prism-bar-row"><div class="prism-bar-label">Batting</div><div class="prism-bar-track"><div class="prism-bar-fill" style="width:{max(0.0,min(10.0,averages['batting'])) * 10:.1f}%"></div></div><div class="prism-bar-value">{averages['batting']:.2f}</div></div>
+          <div class="prism-bar-row"><div class="prism-bar-label">Bowling</div><div class="prism-bar-track"><div class="prism-bar-fill" style="width:{max(0.0,min(10.0,averages['bowling'])) * 10:.1f}%"></div></div><div class="prism-bar-value">{averages['bowling']:.2f}</div></div>
+          <div class="prism-bar-row"><div class="prism-bar-label">Fielding</div><div class="prism-bar-track"><div class="prism-bar-fill" style="width:{max(0.0,min(10.0,averages['fielding'])) * 10:.1f}%"></div></div><div class="prism-bar-value">{averages['fielding']:.2f}</div></div>
         </div>''',
         unsafe_allow_html=True,
     )
-    render_skill_bar("Batting", averages["batting"])
-    render_skill_bar("Bowling", averages["bowling"])
-    render_skill_bar("Fielding", averages["fielding"])
 
 
-def render_player_card(player, rank_lookup):
+def render_player_card(player, rank_lookup, shared_names=None):
     name = html.escape(str(player["name"]))
     role = html.escape(player_role(player))
     rank = rank_lookup.get(player["name"], "—")
     score = player_score(player)
+    shared_names = shared_names or set()
+    is_shared = player["name"] in shared_names
+    shared_tag = '<span class="prism-shared-tag">SHARED</span>' if is_shared else ''
     st.markdown(
-        f'''<div class="prism-player-card">
+        f'''<div class="prism-player-card{' shared' if is_shared else ''}">
           <div class="prism-player-card-top">
-            <div class="prism-player-card-name">{name}</div>
-            <div class="prism-player-card-rank">#{rank} · {score:.2f}</div>
+            <div class="prism-player-card-name"><span class="prism-player-card-rank">#{rank}</span>&nbsp; {name}{shared_tag}</div>
+            <div class="prism-player-card-rank">{score:.2f}</div>
           </div>
           <div class="prism-player-card-skills">
             <span>BAT <b>{float(player['batting']):.2f}</b></span>
@@ -366,6 +386,7 @@ def on_player_checkbox_change(name):
     else:
         selected.discard(name)
     st.session_state.selected_player_names = selected
+    st.session_state.match1_search = ""
 
 
 def toggle_player_from_row(name):
@@ -379,6 +400,7 @@ def toggle_player_from_row(name):
         selected.add(name)
         st.session_state[key] = True
     st.session_state.selected_player_names = selected
+    st.session_state.match1_search = ""
 
 
 def set_selection(names, players):
@@ -401,11 +423,10 @@ def clear_selection_state(players):
 
 @st.dialog("Reset this session?")
 def reset_session_dialog():
-    st.write("This will clear the current match history and return to Match 1.")
-    st.write("Your player ratings in `players.csv` will not be changed.")
+    st.write("Reset the session?")
     confirm_col, cancel_col = st.columns(2)
     with confirm_col:
-        if st.button("Reset session", type="primary", use_container_width=True, key="dialog_confirm_reset"):
+        if st.button("Reset", type="primary", use_container_width=True, key="dialog_confirm_reset"):
             st.session_state.cricket_session = CricketSession()
             clear_selection_state(master_players)
             st.rerun()
@@ -435,12 +456,10 @@ if session.match_number == 0 or edit_mode:
     sync_selection_widget_state(ranked_master)
 
     st.markdown("## Select your squad")
-    search_col, _ = st.columns([4, 1])
-    with search_col:
-        search_text = st.text_input(
-            "Search players", placeholder="Search by player name", key="match1_search",
-            label_visibility="collapsed",
-        )
+    search_text = st.text_input(
+        "Search players", placeholder="Search by player name", key="match1_search",
+        label_visibility="collapsed",
+    )
 
     filtered_players = [p for p in ranked_master if search_text.strip().casefold() in p["name"].casefold()]
 
@@ -512,7 +531,7 @@ if session.match_number == 0 or edit_mode:
                 )
                 st.button(
                     "Toggle player selection", key=f"toggle_player_{rank}",
-                    help="Click the player row to select or deselect", use_container_width=True,
+                    use_container_width=True,
                     on_click=toggle_player_from_row, args=(name,),
                 )
             with total_col:
@@ -537,8 +556,43 @@ if session.current_teams and not st.session_state.get("edit_players_mode", False
     ranked_master = ranked_players(master_players)
     rank_lookup = {player["name"]: rank for rank, player in enumerate(ranked_master, start=1)}
 
-    # Controls live on the team view, not in a sidebar.
-    action_edit, action_reset = st.columns([3, 1])
+    # Responsive team summary cards: side-by-side on desktop and mobile.
+    if "mobile_team_view" not in st.session_state:
+        st.session_state.mobile_team_view = "A"
+    shared_names = {p["name"] for p in team_a} & {p["name"] for p in team_b}
+    summary_a, summary_b = st.columns(2, gap="medium")
+    with summary_a:
+        with st.container(key="team-card-a"):
+            render_team_summary("Team A", team_a, selected=st.session_state.mobile_team_view == "A")
+            with st.container(key="team-a-card-select"):
+                st.button("Select Team A", key="select_team_a_card", use_container_width=True,
+                          on_click=lambda: st.session_state.update({"mobile_team_view": "A"}))
+    with summary_b:
+        with st.container(key="team-card-b"):
+            render_team_summary("Team B", team_b, selected=st.session_state.mobile_team_view == "B")
+            with st.container(key="team-b-card-select"):
+                st.button("Select Team B", key="select_team_b_card", use_container_width=True,
+                          on_click=lambda: st.session_state.update({"mobile_team_view": "B"}))
+
+    ordered_a = sorted(team_a, key=player_score, reverse=True)
+    ordered_b = sorted(team_b, key=player_score, reverse=True)
+    desktop_a, desktop_b = st.columns(2, gap="medium")
+    with desktop_a:
+        with st.container(key="team-a-desktop"):
+            for player in ordered_a:
+                render_player_card(player, rank_lookup, shared_names)
+    with desktop_b:
+        with st.container(key="team-b-desktop"):
+            for player in ordered_b:
+                render_player_card(player, rank_lookup, shared_names)
+
+    with st.container(key="mobile-team-list"):
+        mobile_team = ordered_a if st.session_state.mobile_team_view == "A" else ordered_b
+        for player in mobile_team:
+            render_player_card(player, rank_lookup, shared_names)
+
+    # Controls stay at the bottom of the team view.
+    action_edit, action_reset = st.columns([3, 1], gap="medium")
     with action_edit:
         if st.button("Edit players", use_container_width=True, key="edit_players_from_team_view"):
             set_selection([p["name"] for p in session.players], ranked_master)
@@ -548,39 +602,5 @@ if session.current_teams and not st.session_state.get("edit_players_mode", False
     with action_reset:
         if st.button("Reset session", use_container_width=True, key="reset_from_team_view"):
             reset_session_dialog()
-
-    # Two minimal team cards, side by side. No shared-player banner,
-    # match title, balance-score section, or change-log section here.
-    if "mobile_team_view" not in st.session_state:
-        st.session_state.mobile_team_view = "A"
-    summary_a, summary_b = st.columns(2)
-    with summary_a:
-        with st.container(key="team-card-a"):
-            render_team_summary("Team A", team_a)
-            with st.container(key="team-a-card-select"):
-                st.button("Select Team A", key="select_team_a_card", use_container_width=True,
-                          on_click=lambda: st.session_state.update({"mobile_team_view": "A"}))
-    with summary_b:
-        with st.container(key="team-card-b"):
-            render_team_summary("Team B", team_b)
-            with st.container(key="team-b-card-select"):
-                st.button("Select Team B", key="select_team_b_card", use_container_width=True,
-                          on_click=lambda: st.session_state.update({"mobile_team_view": "B"}))
-
-    ordered_a = sorted(team_a, key=player_score, reverse=True)
-    ordered_b = sorted(team_b, key=player_score, reverse=True)
-
-    # Desktop: show both lists side by side. Mobile: show one list below
-    # the summary cards; tapping a summary card switches the selected team.
-    with st.container(key="team-a-desktop"):
-        for player in ordered_a:
-            render_player_card(player, rank_lookup)
-    with st.container(key="team-b-desktop"):
-        for player in ordered_b:
-            render_player_card(player, rank_lookup)
-    with st.container(key="mobile-team-list"):
-        mobile_team = ordered_a if st.session_state.mobile_team_view == "A" else ordered_b
-        for player in mobile_team:
-            render_player_card(player, rank_lookup)
 
 # No sidebar controls and no standalone Manual Team Builder / Comparison UI.
