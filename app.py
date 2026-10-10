@@ -45,10 +45,11 @@ st.markdown(
         --prism-border: rgba(210,224,245,.13);
       }
       .stApp { background:var(--prism-bg); color:var(--prism-text); }
-      [data-testid="stHeader"] { background:rgba(11,18,32,.94); }
+      [data-testid="stHeader"] { display:none; }
       [data-testid="stSidebar"] { display:none; }
-      .block-container { max-width:1160px; padding-top:2.2rem; padding-bottom:3.5rem; }
-      [data-testid="stMainMenu"] { display:none; }
+      .block-container { max-width:1160px; padding-top:1.5rem; padding-bottom:3.5rem; }
+      [data-testid="stMainMenu"] { display:none !important; }
+      [data-testid="stToolbar"] { display:none !important; }
       h1,h2,h3,h4,p,label,[data-testid="stMarkdownContainer"] { color:var(--prism-text); }
       h1 { letter-spacing:-.045em; font-weight:800; }
       h2,h3 { letter-spacing:-.025em; }
@@ -89,6 +90,8 @@ st.markdown(
       [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] label { padding:0; }
       [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] label p { display:none; }
       [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] { position:relative; z-index:4; }
+      [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] input,
+      [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] label { pointer-events:auto; }
       .prism-rank { color:var(--prism-lime); font-size:.75rem; font-weight:850; white-space:nowrap; }
       .prism-player-name { color:var(--prism-text); font-size:.94rem; font-weight:780; line-height:1.25; }
       .prism-player-meta { color:var(--prism-muted); font-size:.74rem; margin-top:.28rem; line-height:1.5; }
@@ -99,9 +102,11 @@ st.markdown(
 
       /* Streamlit button inside the details area acts as a full-row click target. */
       [class*="st-key-player-selection-row-"] [data-testid="stButton"] {
-        position:absolute !important; left:3rem; right:3rem; top:0; bottom:0; z-index:2; opacity:0 !important;
-        width:auto; height:100%; margin:0 !important; padding:0 !important;
+        position:absolute !important; inset:0 !important; z-index:2; opacity:0 !important;
+        width:100% !important; height:100% !important; margin:0 !important; padding:0 !important;
+        pointer-events:none;
       }
+      [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button { pointer-events:auto; }
       [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button {
         position:absolute; inset:0; width:100%; height:100%; min-height:100%; background:transparent; color:var(--prism-text); border:0; border-radius:8px;
         padding:0; box-shadow:none; text-align:left; font-size:.01rem; line-height:.01rem;
@@ -109,11 +114,11 @@ st.markdown(
       [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button:hover { background:rgba(183,243,74,.07); color:var(--prism-text); border:0; }
 
       /* Primary action */
-      div.stButton > button[kind="primary"] {
+      div.stButton > button[kind="primary"], div.stButton > button[data-testid="stBaseButton-primary"] {
         background:var(--prism-lime) !important; color:#101827 !important; border:1px solid var(--prism-lime) !important;
         border-radius:12px; font-weight:850; min-height:2.85rem; box-shadow:none;
       }
-      div.stButton > button[kind="primary"]:hover { background:#C9FF70 !important; color:#101827 !important; border-color:#C9FF70 !important; transform:translateY(-1px); }
+      div.stButton > button[kind="primary"]:hover, div.stButton > button[data-testid="stBaseButton-primary"]:hover { background:#C9FF70 !important; color:#101827 !important; border-color:#C9FF70 !important; transform:translateY(-1px); }
       div.stButton > button:not([kind="primary"]) { border-radius:11px; border-color:var(--prism-border); min-height:2.55rem; }
 
       /* Team summary cards */
@@ -156,7 +161,7 @@ st.markdown(
       [data-testid="stDialog"] { border:1px solid var(--prism-border); }
 
       @media (max-width:760px) {
-        .block-container { padding-left:.85rem; padding-right:.85rem; padding-top:1.2rem; }
+        .block-container { padding-left:.85rem; padding-right:.85rem; padding-top:.8rem; }
         h1 { font-size:1.85rem !important; }
         h2 { font-size:1.3rem !important; }
         .prism-team-card { min-height:0; padding:.8rem; }
@@ -173,12 +178,17 @@ st.markdown(
         [class*="st-key-player-selection-row-"] { padding:.48rem .42rem; }
         .st-key-team-a-desktop, .st-key-team-b-desktop { display:none; }
         .st-key-mobile-team-list { display:block; }
-        .st-key-team-a-card-select, .st-key-team-b-card-select { display:block; position:absolute; inset:0; opacity:0; z-index:3; pointer-events:none; }
-        .st-key-team-a-card-select [data-testid="stButton"], .st-key-team-b-card-select [data-testid="stButton"] { height:100%; pointer-events:auto; }
-        .st-key-team-a-card-select button, .st-key-team-b-card-select button { width:100%; height:100%; min-height:100%; }
+        .st-key-team-a-card-select, .st-key-team-b-card-select { display:block; position:absolute !important; inset:0 !important; opacity:0; z-index:10; pointer-events:none; }
+        .st-key-team-a-card-select [data-testid="stButton"], .st-key-team-b-card-select [data-testid="stButton"] { position:absolute !important; inset:0 !important; height:100% !important; width:100% !important; pointer-events:auto; }
+        .st-key-team-a-card-select button, .st-key-team-b-card-select button { position:absolute; inset:0; width:100%; height:100%; min-height:100%; padding:0; }
         .st-key-team-card-a, .st-key-team-card-b { position:relative; }
 
         [class*="st-key-player-selection-row-"] [data-testid="stHorizontalBlock"] { gap:.25rem; }
+        [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] { min-width:1.35rem; }
+        [class*="st-key-player-selection-row-"] .prism-player-name { overflow-wrap:anywhere; }
+        [class*="st-key-player-selection-row-"] [data-testid="stMarkdownContainer"] { min-width:0; }
+        .st-key-selection-action-card div.stButton > button[kind="primary"] { color:#101827 !important; }
+        .st-key-team-a-card-select, .st-key-team-b-card-select { inset:0 !important; }
       }
     </style>
     """,
@@ -421,9 +431,8 @@ def clear_selection_state(players):
     st.session_state.pop("mobile_team_view", None)
 
 
-@st.dialog("Reset this session?")
+@st.dialog("Reset the session?")
 def reset_session_dialog():
-    st.write("Reset the session?")
     confirm_col, cancel_col = st.columns(2)
     with confirm_col:
         if st.button("Reset", type="primary", use_container_width=True, key="dialog_confirm_reset"):
@@ -455,13 +464,13 @@ if session.match_number == 0 or edit_mode:
         st.session_state.selected_player_names = set()
     sync_selection_widget_state(ranked_master)
 
-    st.markdown("## Select your squad")
+    st.markdown("## Select Players")
     search_text = st.text_input(
         "Search players", placeholder="Search by player name", key="match1_search",
-        label_visibility="collapsed",
+        label_visibility="collapsed", on_change=None,
     )
 
-    filtered_players = [p for p in ranked_master if search_text.strip().casefold() in p["name"].casefold()]
+    filtered_players = [p for p in ranked_master if p["name"].casefold().startswith(search_text.strip().casefold())]
 
     # Durable selected-name state is separate from visible checkbox widgets.
     # This prevents Streamlit from losing selections when search hides rows.
@@ -510,19 +519,17 @@ if session.match_number == 0 or edit_mode:
         rank = rank_lookup[name]
         key = selection_key(name)
         with st.container(key=f"player-selection-row-{rank}"):
-            check_col, rank_col, details_col, total_col = st.columns([0.42, 0.48, 4.3, 0.75])
+            check_col, details_col, total_col = st.columns([0.42, 4.4, 0.78])
             with check_col:
                 st.checkbox(
                     f"Select {name}", key=key, label_visibility="collapsed",
                     on_change=on_player_checkbox_change, args=(name,),
                 )
-            with rank_col:
-                st.markdown(f'<div class="prism-rank">#{rank}</div>', unsafe_allow_html=True)
             with details_col:
                 role = html.escape(player_role(player))
                 safe_name = html.escape(str(name))
                 st.markdown(
-                    f'''<div class="prism-player-name">{safe_name}</div>
+                    f'''<div class="prism-player-name"><span class="prism-rank">#{rank}</span>&nbsp; {safe_name}</div>
                     <div class="prism-player-meta"><span class="prism-role">{role}</span>
                     &nbsp; BAT <b>{float(player['batting']):.2f}</b>
                     &nbsp; BOWL <b>{float(player['bowling']):.2f}</b>
@@ -537,11 +544,6 @@ if session.match_number == 0 or edit_mode:
             with total_col:
                 st.markdown(f'<div class="prism-total">{player_score(player):.2f}</div><div class="prism-skill-label">Strength</div>', unsafe_allow_html=True)
 
-    if edit_mode:
-        if st.button("Cancel editing", use_container_width=True, key="cancel_edit_players"):
-            st.session_state.pop("edit_players_mode", None)
-            set_selection([p["name"] for p in session.players], ranked_master)
-            st.rerun()
 
 
 # ============================================================
@@ -574,8 +576,8 @@ if session.current_teams and not st.session_state.get("edit_players_mode", False
                 st.button("Select Team B", key="select_team_b_card", use_container_width=True,
                           on_click=lambda: st.session_state.update({"mobile_team_view": "B"}))
 
-    ordered_a = sorted(team_a, key=player_score, reverse=True)
-    ordered_b = sorted(team_b, key=player_score, reverse=True)
+    ordered_a = sorted(team_a, key=lambda p: (p["name"] not in shared_names, -player_score(p), p["name"].casefold()))
+    ordered_b = sorted(team_b, key=lambda p: (p["name"] not in shared_names, -player_score(p), p["name"].casefold()))
     desktop_a, desktop_b = st.columns(2, gap="medium")
     with desktop_a:
         with st.container(key="team-a-desktop"):
@@ -592,7 +594,7 @@ if session.current_teams and not st.session_state.get("edit_players_mode", False
             render_player_card(player, rank_lookup, shared_names)
 
     # Controls stay at the bottom of the team view.
-    action_edit, action_reset = st.columns([3, 1], gap="medium")
+    action_edit, action_reset = st.columns(2, gap="medium")
     with action_edit:
         if st.button("Edit players", use_container_width=True, key="edit_players_from_team_view"):
             set_selection([p["name"] for p in session.players], ranked_master)
