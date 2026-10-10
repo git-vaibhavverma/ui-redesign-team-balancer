@@ -1,44 +1,22 @@
 # ============================================================
-# STREAMLIT FRONTEND
+# STREAMLIT FRONTEND — PRISM CRICKET TEAM BALANCER
 # ============================================================
 #
-# This file is currently our frontend.
+# Keep business logic in the backend wherever possible.
 #
-# IMPORTANT:
+# Intended architecture:
+#       Streamlit -> CricketSession -> Team Balancer
 #
-# Keep business logic out of this file wherever possible.
-#
-# The intended architecture is:
-#
-#       Streamlit
-#          ↓
-#   CricketSession
-#          ↓
-#   Team Balancer
-#
-# Later, Streamlit could be replaced with:
-#
-#       React / Next.js / Mobile App
-#               ↓
-#              API
-#               ↓
-#        Same backend
-#
-# without rewriting the actual team-balancing logic.
+# This file redesigns the frontend only. It deliberately keeps
+# the existing CricketSession and team_balancer calls in place.
 # ============================================================
+
+import html
 import streamlit as st
 
 from backend.player_service import PlayerService
 from backend.session_manager import CricketSession
 from backend.team_balancer import team_stats, player_strength
-
-from backend.team_builder import TeamBuilder
-
-from backend.team_comparator import (
-    compare_teams,
-    order_players_by_strength,
-)
-
 
 
 # ============================================================
@@ -46,1600 +24,649 @@ from backend.team_comparator import (
 # ============================================================
 
 st.set_page_config(
-    page_title="Sunday Cricket Team Balancer",
+    page_title="Prism Cricket Team Balancer",
     page_icon="🏏",
     layout="wide",
+    initial_sidebar_state="collapsed",
+)
+
+
+# ============================================================
+# VISUAL THEME
+# ============================================================
+# Palette matches .streamlit/config.toml:
+# navy #0B1220 | slate #152238 | lime #B7F34A | off-white #F5F7FA
+# Lime surfaces intentionally use dark text for readability.
+# ============================================================
+
+st.markdown(
+    """
+    <style>
+      :root {
+        --prism-bg: #0B1220;
+        --prism-panel: #152238;
+        --prism-panel-2: #1B2B43;
+        --prism-lime: #B7F34A;
+        --prism-text: #F5F7FA;
+        --prism-muted: #AAB6C8;
+        --prism-border: rgba(210, 224, 245, 0.13);
+      }
+
+      .stApp { background: var(--prism-bg); color: var(--prism-text); }
+      [data-testid="stHeader"] { background: rgba(11,18,32,0.92); }
+      [data-testid="stSidebar"] { background: var(--prism-panel); }
+      .block-container { max-width: 1320px; padding-top: 1.7rem; padding-bottom: 6rem; }
+      h1, h2, h3, h4, p, label, [data-testid="stMarkdownContainer"] { color: var(--prism-text); }
+      h1 { letter-spacing: -0.035em; font-weight: 800; }
+      h2, h3 { letter-spacing: -0.02em; }
+      [data-testid="stCaptionContainer"] { color: var(--prism-muted); }
+
+      div[data-testid="stTextInput"] input,
+      div[data-testid="stSelectbox"] div[data-baseweb="select"],
+      div[data-testid="stMultiSelect"] div[data-baseweb="select"] {
+        background: var(--prism-panel); border-color: var(--prism-border); border-radius: 12px;
+      }
+      div[data-testid="stTextInput"] input { color: var(--prism-text); }
+      div[data-testid="stCheckbox"] label { gap: 0.45rem; }
+      div[data-testid="stCheckbox"] label p { font-weight: 600; }
+
+      .prism-eyebrow {
+        color: var(--prism-lime); text-transform: uppercase; letter-spacing: .16em;
+        font-size: .72rem; font-weight: 800; margin-bottom: .35rem;
+      }
+      .prism-subtitle { color: var(--prism-muted); font-size: .96rem; margin-top: -.4rem; }
+      .prism-panel {
+        background: linear-gradient(145deg, #152238 0%, #101B2D 100%);
+        border: 1px solid var(--prism-border); border-radius: 18px;
+        padding: 1rem 1.05rem; margin-bottom: .65rem;
+      }
+      .prism-player-name { font-size: 1rem; font-weight: 750; line-height: 1.25; }
+      .prism-player-meta { color: var(--prism-muted); font-size: .79rem; margin-top: .32rem; }
+      .prism-rank {
+        color: var(--prism-lime); font-size: .78rem; font-weight: 800;
+        background: rgba(183,243,74,.10); border: 1px solid rgba(183,243,74,.24);
+        border-radius: 8px; padding: .28rem .45rem; display: inline-block;
+      }
+      .prism-role {
+        color: #D8E1EF; border: 1px solid var(--prism-border); border-radius: 999px;
+        padding: .15rem .48rem; font-size: .70rem; font-weight: 750; display: inline-block;
+      }
+      .prism-total { color: var(--prism-lime); font-weight: 800; font-size: 1.02rem; }
+      .prism-skill-label { color: var(--prism-muted); font-size: .72rem; }
+      .prism-skill-value { color: var(--prism-text); font-size: .8rem; font-weight: 700; }
+
+      .prism-team-card {
+        background: linear-gradient(145deg, #192A40 0%, #111D30 100%);
+        border: 1px solid var(--prism-border); border-radius: 18px;
+        padding: 1.05rem 1.1rem .9rem 1.1rem; min-height: 205px;
+      }
+      .prism-team-title { font-size: 1.02rem; font-weight: 800; margin-bottom: .15rem; }
+      .prism-team-score { color: var(--prism-lime); font-size: 1.8rem; font-weight: 850; letter-spacing: -.04em; }
+      .prism-team-small { color: var(--prism-muted); font-size: .78rem; }
+      .prism-stat-pill {
+        display: inline-block; margin: .2rem .22rem .05rem 0; padding: .27rem .48rem;
+        border: 1px solid var(--prism-border); border-radius: 9px; font-size: .75rem;
+        color: var(--prism-text); background: rgba(255,255,255,.025);
+      }
+      .prism-stat-pill b { color: var(--prism-lime); }
+      .prism-bar-row { display: grid; grid-template-columns: 62px 1fr 38px; gap: 8px; align-items: center; margin-top: .55rem; }
+      .prism-bar-label { color: var(--prism-muted); font-size: .76rem; }
+      .prism-bar-track { height: 7px; background: #2A3B52; border-radius: 99px; overflow: hidden; }
+      .prism-bar-fill { height: 100%; background: var(--prism-lime); border-radius: 99px; }
+      .prism-bar-value { font-size: .76rem; font-weight: 750; text-align: right; }
+      .prism-list-heading { color: var(--prism-muted); font-size: .74rem; text-transform: uppercase; letter-spacing: .12em; font-weight: 800; }
+      .prism-player-card {
+        border: 1px solid var(--prism-border); border-radius: 13px; padding: .72rem .8rem;
+        margin-bottom: .48rem; background: rgba(21,34,56,.55);
+      }
+      .prism-player-card.shared { border-color: rgba(183,243,74,.48); }
+      .prism-player-card-top { display:flex; justify-content:space-between; gap:.5rem; align-items:center; }
+      .prism-player-card-name { font-size:.9rem; font-weight:750; }
+      .prism-player-card-rank { color:var(--prism-lime); font-size:.72rem; font-weight:800; white-space:nowrap; }
+      .prism-player-card-skills { display:flex; flex-wrap:wrap; gap:.28rem .65rem; color:var(--prism-muted); font-size:.73rem; margin-top:.45rem; }
+      .prism-player-card-skills b { color:var(--prism-text); font-weight:700; }
+      .prism-player-card-footer { display:flex; justify-content:space-between; gap:.5rem; align-items:center; margin-top:.45rem; }
+      .prism-shared-note { border-left: 3px solid var(--prism-lime); padding:.65rem .85rem; background:rgba(183,243,74,.07); border-radius:0 10px 10px 0; margin:.7rem 0 1rem; }
+      .prism-muted { color:var(--prism-muted); }
+
+      div.stButton > button[kind="primary"] {
+        background: var(--prism-lime); color: #101827; border: 1px solid var(--prism-lime);
+        border-radius: 12px; font-weight: 850; min-height: 2.8rem;
+      }
+      div.stButton > button[kind="primary"]:hover { background: #C9FF70; color:#101827; border-color:#C9FF70; }
+      div.stButton > button:not([kind="primary"]) {
+        border-radius: 11px; border-color: var(--prism-border); min-height: 2.55rem;
+      }
+      [data-testid="stMetric"] { background:var(--prism-panel); border:1px solid var(--prism-border); border-radius:13px; padding:.7rem .85rem; }
+      [data-testid="stMetricValue"] { color:var(--prism-lime); }
+      hr { border-color: var(--prism-border); }
+
+      /* Player-selection rows are intentionally compact. */
+      [class*="st-key-player-selection-row-"] { border-bottom: 1px solid var(--prism-border); padding: .18rem 0 .48rem; }
+      .st-key-team-a-desktop, .st-key-team-b-desktop { display:block; }
+      .st-key-mobile-team-picker, .st-key-mobile-team-list, .st-key-view_team_a, .st-key-view_team_b { display:none; }
+
+      @media (max-width: 760px) {
+        .block-container { padding-left: 1rem; padding-right: 1rem; padding-top: 1rem; }
+        h1 { font-size: 1.8rem !important; }
+        h2 { font-size: 1.35rem !important; }
+        .prism-team-card { min-height: 0; padding: .85rem; }
+        .prism-team-score { font-size: 1.55rem; }
+        .st-key-team-a-desktop, .st-key-team-b-desktop { display:none; }
+        .st-key-mobile-team-picker, .st-key-mobile-team-list, .st-key-view_team_a, .st-key-view_team_b { display:block; }
+        div[data-testid="stHorizontalBlock"] { gap: .55rem; }
+        div[data-testid="stMetric"] { padding: .55rem; }
+        [data-testid="stMetricLabel"] { font-size: .75rem; }
+        [data-testid="stMetricValue"] { font-size: 1.2rem; }
+      }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
 
 # ============================================================
 # SERVICES
 # ============================================================
-#
-# Streamlit reruns the script frequently.
-#
-# @st.cache_resource keeps the service object alive rather
-# than creating it from scratch on every rerun.
-# ============================================================
 
 @st.cache_resource
 def get_player_service():
+    return PlayerService("players.csv")
 
-    return PlayerService(
-        "players.csv"
-    )
-
-
-# ------------------------------------------------------------
-# Cache the master player list.
-#
-# The CSV doesn't normally change during a Sunday session,
-# so there is no reason to reload it on every Streamlit
-# interaction.
-# ------------------------------------------------------------
 
 @st.cache_data
 def get_master_players():
-
-    service = get_player_service()
-
-    return service.load_master_players()
+    return get_player_service().load_master_players()
 
 
-player_service = (
-    get_player_service()
-)
-
-master_players = (
-    get_master_players()
-)
+master_players = get_master_players()
 
 
 # ============================================================
 # APPLICATION SESSION
 # ============================================================
-#
-# Streamlit reruns app.py from top to bottom whenever the user
-# interacts with the application.
-#
-# st.session_state allows our CricketSession object to survive
-# those reruns.
+# CricketSession remains the source of truth for match state.
 # ============================================================
 
 if "cricket_session" not in st.session_state:
+    st.session_state.cricket_session = CricketSession()
 
-    st.session_state.cricket_session = (
-        CricketSession()
-    )
-
-
-session = (
-    st.session_state.cricket_session
-)
+session = st.session_state.cricket_session
 
 
 # ============================================================
-# HELPER: CONVERT TEAMS TO ASSIGNMENTS
+# PRESENTATION HELPERS
 # ============================================================
+
+def player_role(player):
+    """Return the display role without changing player data."""
+    is_batsman = bool(player.get("is_batsman", False))
+    is_bowler = bool(player.get("is_bowler", False))
+    if is_batsman and is_bowler:
+        return "ALL-ROUNDER"
+    if is_batsman:
+        return "BATTER"
+    if is_bowler:
+        return "BOWLER"
+    return "FIELD"
+
+
+def player_score(player):
+    """Use the existing backend's weighted individual-strength score."""
+    return float(player_strength(player))
+
+
+def ranked_players(players):
+    """Return a presentation-only ranking; no balancing logic is changed."""
+    return sorted(players, key=lambda p: (-player_score(p), p["name"].casefold()))
+
 
 def assignment_from_teams(team_result):
-    """
-    Convert a match result into:
-
-        player -> A
-        player -> B
-        player -> SHARED
-
-    This is mainly used by the UI to explain what changed
-    between matches.
-    """
-
-    team_a_names = {
-        p["name"]
-        for p in team_result["team_a"]
-    }
-
-    team_b_names = {
-        p["name"]
-        for p in team_result["team_b"]
-    }
-
+    """Convert team lists to player -> A / B / SHARED assignments."""
+    team_a_names = {p["name"] for p in team_result["team_a"]}
+    team_b_names = {p["name"] for p in team_result["team_b"]}
     assignment = {}
-
-    # A player appearing in both lists is shared.
-    for name in (
-        team_a_names
-        & team_b_names
-    ):
-
+    for name in team_a_names & team_b_names:
         assignment[name] = "SHARED"
-
-    # Players appearing only in Team A.
-    for name in (
-        team_a_names
-        - team_b_names
-    ):
-
+    for name in team_a_names - team_b_names:
         assignment[name] = "A"
-
-    # Players appearing only in Team B.
-    for name in (
-        team_b_names
-        - team_a_names
-    ):
-
+    for name in team_b_names - team_a_names:
         assignment[name] = "B"
-
     return assignment
 
 
-# ============================================================
-# HELPER: DISPLAY PLAYER
-# ============================================================
-
-def display_player(player):
-    """
-    Display one player's information.
-
-    Ratings are displayed with exactly two decimal places.
-
-    IMPORTANT:
-    This is presentation formatting only.
-
-    The actual backend continues using the underlying floating
-    point values.
-    """
-
-    roles = []
-
-    if player["is_batsman"]:
-        roles.append("BAT")
-
-    if player["is_bowler"]:
-        roles.append("BOWL")
-
-    # Players with neither role are treated as fielding-only.
-    role_text = (
-        " / ".join(roles)
-        if roles
-        else "FIELD"
-    )
-
-    st.write(
-        f"**{player['name']}** "
-        f"— Bat {player['batting']:.2f} | "
-        f"Bowl {player['bowling']:.2f} | "
-        f"Field {player['fielding']:.2f} "
-        f"({role_text})"
-    )
-
-
-# ============================================================
-# HELPER: DISPLAY TEAM STATISTICS
-# ============================================================
-
-def display_team_stats(team):
-    """
-    Display the calculated statistics for a team.
-    """
-
-    stats = team_stats(team)
-
-    # --------------------------------------------------------
-    # Main numerical statistics
-    # --------------------------------------------------------
-
-    col1, col2, col3, col4 = (
-        st.columns(4)
-    )
-
-    with col1:
-
-        st.metric(
-            "Batting",
-            f"{stats['batting']:.2f}",
-        )
-
-    with col2:
-
-        st.metric(
-            "Bowling",
-            f"{stats['bowling']:.2f}",
-        )
-
-    with col3:
-
-        st.metric(
-            "Fielding",
-            f"{stats['fielding']:.2f}",
-        )
-
-    with col4:
-
-        st.metric(
-            "Strength",
-            f"{stats['strength']:.2f}",
-        )
-
-    # --------------------------------------------------------
-    # Role and impact information
-    # --------------------------------------------------------
-
-    st.markdown(
-        f"""
-        **Roles**
-
-        🏏 Batters: **{stats['batsmen']}**  
-        🎯 Bowlers: **{stats['bowlers']}**
-
-        **Impact**
-
-        🔥 Elite Batters: **{stats['elite_batters']}**  
-        🔥 Elite Bowlers: **{stats['elite_bowlers']}**  
-        ⭐ Strong Batters: **{stats['strong_batters']}**  
-        ⭐ Strong Bowlers: **{stats['strong_bowlers']}**
-        """
-    )
-
-
-# ============================================================
-# HELPER: DISPLAY MATCH CHANGES
-# ============================================================
-
 def display_changes(previous, current):
-    """
-    Explain what changed between two consecutive matches.
-
-    We deliberately distinguish:
-
-        A -> B / B -> A
-            = actual movement
-
-        A -> SHARED
-        B -> SHARED
-        SHARED -> A
-        SHARED -> B
-            = not a movement
-
-    This mirrors the reshuffle rules in the backend.
-    """
-
+    """Explain match-to-match changes; shared-player transitions aren't movements."""
     if not previous:
         return
 
-    previous_assignment = (
-        assignment_from_teams(
-            previous
-        )
-    )
-
-    current_assignment = (
-        assignment_from_teams(
-            current
-        )
-    )
-
-    previous_players = set(
-        previous_assignment
-    )
-
-    current_players = set(
-        current_assignment
-    )
-
-    # --------------------------------------------------------
-    # Players who joined
-    # --------------------------------------------------------
-
-    new_players = (
-        current_players
-        - previous_players
-    )
-
-    # --------------------------------------------------------
-    # Players who left
-    # --------------------------------------------------------
-
-    removed_players = (
-        previous_players
-        - current_players
-    )
-
-    # --------------------------------------------------------
-    # Actual A <-> B movements
-    # --------------------------------------------------------
-    #
-    # Shared transitions are intentionally excluded.
-    # --------------------------------------------------------
+    previous_assignment = assignment_from_teams(previous)
+    current_assignment = assignment_from_teams(current)
+    previous_players = set(previous_assignment)
+    current_players = set(current_assignment)
+    new_players = current_players - previous_players
+    removed_players = previous_players - current_players
 
     moved_players = []
-
-    for name in (
-        previous_players
-        & current_players
-    ):
-
-        old = previous_assignment[name]
-        new = current_assignment[name]
-
-        if (
-            old in ("A", "B")
-            and new in ("A", "B")
-            and old != new
-        ):
-
-            moved_players.append(
-                (name, old, new)
-            )
-
-    # --------------------------------------------------------
-    # Players who became shared
-    # --------------------------------------------------------
-
     became_shared = []
-
-    for name in (
-        previous_players
-        & current_players
-    ):
-
-        old = previous_assignment[name]
-        new = current_assignment[name]
-
-        if (
-            old in ("A", "B")
-            and new == "SHARED"
-        ):
-
-            became_shared.append(
-                name
-            )
-
-    # --------------------------------------------------------
-    # Players who stopped being shared
-    # --------------------------------------------------------
-
     no_longer_shared = []
-
-    for name in (
-        previous_players
-        & current_players
-    ):
-
+    for name in previous_players & current_players:
         old = previous_assignment[name]
         new = current_assignment[name]
+        if old in ("A", "B") and new in ("A", "B") and old != new:
+            moved_players.append((name, old, new))
+        if old in ("A", "B") and new == "SHARED":
+            became_shared.append(name)
+        if old == "SHARED" and new in ("A", "B"):
+            no_longer_shared.append((name, new))
 
-        if (
-            old == "SHARED"
-            and new in ("A", "B")
-        ):
-
-            no_longer_shared.append(
-                (name, new)
-            )
-
-    # --------------------------------------------------------
-    # Display results
-    # --------------------------------------------------------
-
-    st.subheader(
-        "Changes from Previous Match"
-    )
-
+    st.markdown("### Changes from previous match")
+    changes_exist = bool(new_players or removed_players or moved_players or became_shared or no_longer_shared)
+    if not changes_exist:
+        st.caption("No player changes.")
+        return
     if new_players:
-
-        st.write(
-            "🟢 **New players:** "
-            + ", ".join(
-                sorted(new_players)
-            )
-        )
-
+        st.markdown("🟢 **Joined:** " + ", ".join(sorted(new_players)))
     if removed_players:
-
-        st.write(
-            "🔴 **Players who left:** "
-            + ", ".join(
-                sorted(removed_players)
-            )
-        )
-
-    if moved_players:
-
-        for name, old, new in (
-            moved_players
-        ):
-
-            st.write(
-                f"🔄 **{name}**: "
-                f"Team {old} → Team {new}"
-            )
-
+        st.markdown("🔴 **Left:** " + ", ".join(sorted(removed_players)))
+    for name, old, new in sorted(moved_players):
+        st.markdown(f"🔄 **{name}** · Team {old} → Team {new}")
     if became_shared:
+        st.markdown("🤝 **Now shared:** " + ", ".join(sorted(became_shared)))
+    for name, team in sorted(no_longer_shared):
+        st.markdown(f"↔️ **{name}** · Shared → Team {team}")
 
-        st.write(
-            "🤝 **Now shared:** "
-            + ", ".join(
-                sorted(became_shared)
-            )
-        )
-
-    if no_longer_shared:
-
-        for name, team in (
-            no_longer_shared
-        ):
-
-            st.write(
-                f"↔️ **{name}**: "
-                f"Shared → Team {team}"
-            )
-
-    # --------------------------------------------------------
-    # If nothing changed, make that explicit.
-    # --------------------------------------------------------
-
-    if not (
-        new_players
-        or removed_players
-        or moved_players
-        or became_shared
-        or no_longer_shared
-    ):
-
-        st.write(
-            "No player changes."
-        )
-
-
-# ============================================================
-# HELPER: DISPLAY TEAMS IN ORDER (TOTAL STRENGTH)
-# ============================================================
 
 def order_team_for_display(team, shared_player=None):
-    """
-    Order players for presentation purposes only.
+    """Shared player first, then individual strength descending; display-only."""
+    shared_name = shared_player["name"] if shared_player else None
+    shared = [p for p in team if shared_name and p["name"] == shared_name]
+    normal = [p for p in team if not (shared_name and p["name"] == shared_name)]
+    normal.sort(key=player_score, reverse=True)
+    return shared + normal
 
-    Display order:
-        1. Shared player, if applicable
-        2. All other players by overall strength descending
 
-    This does NOT affect the team-balancing algorithm.
-    It only changes the order in which players are shown
-    on the screen.
-    """
-
-    # --------------------------------------------------------
-    # Separate the shared player from the normal players.
-    #
-    # We identify the shared player by name rather than object
-    # identity because player records are dictionaries and may
-    # have been copied during session processing.
-    # --------------------------------------------------------
-
-    shared = []
-    normal_players = []
-
-    shared_name = (
-        shared_player["name"]
-        if shared_player
-        else None
-    )
-
+def role_counts(team):
+    """Count role categories; a dual-role player is an all-rounder."""
+    counts = {"batters": 0, "bowlers": 0, "all_rounders": 0, "field_players": 0}
     for player in team:
-
-        if (
-            shared_name
-            and player["name"] == shared_name
-        ):
-            shared.append(player)
-
+        batsman = bool(player.get("is_batsman", False))
+        bowler = bool(player.get("is_bowler", False))
+        if batsman and bowler:
+            counts["all_rounders"] += 1
+        elif batsman:
+            counts["batters"] += 1
+        elif bowler:
+            counts["bowlers"] += 1
         else:
-            normal_players.append(player)
+            counts["field_players"] += 1
+    return counts
 
-    # --------------------------------------------------------
-    # Sort normal players by their weighted overall strength.
-    #
-    # Reverse=True means strongest player appears first.
-    #
-    # player_strength() already uses the configured weights:
-    #
-    #   Batting  = 35%
-    #   Bowling  = 45%
-    #   Fielding = 20%
-    # --------------------------------------------------------
 
-    normal_players.sort(
-        key=player_strength,
-        reverse=True,
+def team_skill_averages(team):
+    """Average raw skill ratings for 0–10 visual progress bars."""
+    if not team:
+        return {"batting": 0.0, "bowling": 0.0, "fielding": 0.0}
+    return {
+        skill: sum(float(p[skill]) for p in team) / len(team)
+        for skill in ("batting", "bowling", "fielding")
+    }
+
+
+def team_impact_counts(team):
+    """Elite >= 9; Strong >= 8 and < 9, using existing individual strength score."""
+    scores = [player_score(player) for player in team]
+    return {
+        "elite": sum(score >= 9 for score in scores),
+        "strong": sum(8 <= score < 9 for score in scores),
+    }
+
+
+def render_skill_bar(label, value):
+    value = max(0.0, min(10.0, float(value)))
+    width = value * 10
+    safe_label = html.escape(label)
+    st.markdown(
+        f"""<div class="prism-bar-row">
+          <div class="prism-bar-label">{safe_label}</div>
+          <div class="prism-bar-track"><div class="prism-bar-fill" style="width:{width:.1f}%"></div></div>
+          <div class="prism-bar-value">{value:.2f}</div>
+        </div>""",
+        unsafe_allow_html=True,
     )
 
-    # --------------------------------------------------------
-    # Shared player always comes first.
-    # --------------------------------------------------------
 
-    return (
-        shared
-        + normal_players
+def render_team_summary(team_name, team):
+    """Render the visual summary card while retaining team_stats as source of team strength."""
+    stats = team_stats(team)
+    roles = role_counts(team)
+    impact = team_impact_counts(team)
+    averages = team_skill_averages(team)
+    accent = "A" if team_name == "Team A" else "B"
+    st.markdown(
+        f"""<div class="prism-team-card">
+          <div class="prism-team-title">TEAM {accent}</div>
+          <div class="prism-team-score">{float(stats['strength']):.2f}</div>
+          <div class="prism-team-small">Team strength · {len(team)} players</div>
+          <div style="margin-top:.65rem">
+            <span class="prism-stat-pill"><b>{impact['elite']}</b> Elite</span>
+            <span class="prism-stat-pill"><b>{impact['strong']}</b> Strong</span>
+            <span class="prism-stat-pill"><b>{roles['batters']}</b> Batters</span>
+            <span class="prism-stat-pill"><b>{roles['bowlers']}</b> Bowlers</span>
+            <span class="prism-stat-pill"><b>{roles['all_rounders']}</b> All-rounders</span>
+            <span class="prism-stat-pill"><b>{roles['field_players']}</b> Field</span>
+          </div>
+        </div>""",
+        unsafe_allow_html=True,
+    )
+    render_skill_bar("Batting", averages["batting"])
+    render_skill_bar("Bowling", averages["bowling"])
+    render_skill_bar("Fielding", averages["fielding"])
+
+
+def render_player_card(player, rank_lookup, shared_name=None):
+    """Render a compact player card with pool rank and individual ratings."""
+    name = html.escape(str(player["name"]))
+    role = html.escape(player_role(player))
+    rank = rank_lookup.get(player["name"], "—")
+    score = player_score(player)
+    shared_class = " shared" if shared_name and player["name"] == shared_name else ""
+    shared_tag = '<span class="prism-role">SHARED</span>' if shared_name and player["name"] == shared_name else ""
+    st.markdown(
+        f"""<div class="prism-player-card{shared_class}">
+          <div class="prism-player-card-top">
+            <div class="prism-player-card-name">{name} {shared_tag}</div>
+            <div class="prism-player-card-rank">#{rank} · {score:.2f}</div>
+          </div>
+          <div class="prism-player-card-skills">
+            <span>BAT <b>{float(player['batting']):.2f}</b></span>
+            <span>BOWL <b>{float(player['bowling']):.2f}</b></span>
+            <span>FIELD <b>{float(player['fielding']):.2f}</b></span>
+          </div>
+          <div class="prism-player-card-footer"><span class="prism-role">{role}</span><span class="prism-muted" style="font-size:.72rem">Individual strength</span></div>
+        </div>""",
+        unsafe_allow_html=True,
     )
 
 
-# ============================================================
-# APPLICATION HEADER
-# ============================================================
-
-st.title(
-    "🏏 Sunday Cricket Team Balancer"
-)
-
-st.caption(
-    "Select players for each match and generate balanced "
-    "teams while minimizing unnecessary reshuffling."
-)
+def clear_match_one_selection():
+    """Clear Match 1 widget state when starting a fresh session."""
+    for player in master_players:
+        st.session_state.pop(f"select_player_{player['name']}", None)
+    st.session_state.pop("match1_search", None)
+    st.session_state.pop("mobile_team_view", None)
 
 
 # ============================================================
-# MATCH 1 — PLAYER SELECTION
+# APP HEADER
 # ============================================================
-#
-# Match 1 is different from later matches.
-#
-# At this point we only know the master player pool.
-# The user must tell us who is actually playing.
+
+st.markdown('<div class="prism-eyebrow">PRISM · SUNDAY CRICKET</div>', unsafe_allow_html=True)
+st.title("Team Balancer")
+st.markdown('<div class="prism-subtitle">Balanced teams. Minimal reshuffling. Ready for match day.</div>', unsafe_allow_html=True)
+
+
+# ============================================================
+# MATCH 1 — RANKED PLAYER SELECTION
+# ============================================================
+# Only the UI changes here. The selected full player records
+# still flow through set_initial_players() and generate_match().
 # ============================================================
 
 if session.match_number == 0:
+    st.markdown("## Select your squad")
+    st.caption("Search by name, then select the players who are playing this session. Rankings use the existing weighted individual-strength score.")
 
-    st.header(
-        "Select Players for Match 1"
-    )
+    ranked_master = ranked_players(master_players)
+    rank_lookup = {player["name"]: rank for rank, player in enumerate(ranked_master, start=1)}
 
-    st.info(
-        "The master player list contains everyone who is "
-        "available. Select only the players who are playing "
-        "this Sunday session."
-    )
+    # Initialize stable checkbox state once per browser session.
+    for player in ranked_master:
+        checkbox_key = f"select_player_{player['name']}"
+        if checkbox_key not in st.session_state:
+            st.session_state[checkbox_key] = False
 
-    # Extract names for the multiselect widget.
-    master_names = [
-        p["name"]
-        for p in master_players
-    ]
-
-    selected_names = st.multiselect(
-        "Players playing Match 1",
-        options=master_names,
-    )
-
-    # Convert the selected names back into full player records.
-    selected_players = [
-        p
-        for p in master_players
-        if p["name"]
-        in selected_names
-    ]
-
-    st.write(
-        f"Selected players: "
-        f"**{len(selected_players)}**"
-    )
-
-    # At least two players are required to form teams.
-    if len(selected_players) >= 2:
-
-        if st.button(
-            "🏏 Generate Match 1",
-            type="primary",
-        ):
-
-            # Store the selected players in the session.
-            session.set_initial_players(
-                selected_players
-            )
-
-            # Generate the first team arrangement.
-            session.generate_match()
-
-            # Refresh the UI so Match 1 is displayed.
-            st.rerun()
-
-    else:
-
-        st.warning(
-            "Select at least 2 players."
+    search_col, count_col = st.columns([4, 1])
+    with search_col:
+        search_text = st.text_input(
+            "Search players",
+            placeholder="Type a player name…",
+            key="match1_search",
+            label_visibility="collapsed",
         )
+    selected_names = {
+        player["name"] for player in ranked_master
+        if st.session_state.get(f"select_player_{player['name']}", False)
+    }
+    with count_col:
+        st.metric("Selected", len(selected_names))
+
+    # Keep the list sorted by individual strength, regardless of search.
+    filtered_players = [
+        player for player in ranked_master
+        if search_text.strip().casefold() in player["name"].casefold()
+    ]
+
+    # Compact header row; skill values are ratings, total is weighted score.
+    st.markdown(
+        '<div class="prism-panel"><div class="prism-list-heading">Rank · Player · Role · Batting · Bowling · Fielding · Total</div></div>',
+        unsafe_allow_html=True,
+    )
+
+    if not filtered_players:
+        st.info("No players match that name.")
+    else:
+        for player in filtered_players:
+            name = player["name"]
+            rank = rank_lookup[name]
+            role = player_role(player)
+            checkbox_key = f"select_player_{name}"
+            with st.container(key=f"player-selection-row-{rank}"):
+                row_check, row_rank, row_details, row_total = st.columns([0.55, 0.55, 4.3, 0.85])
+                with row_check:
+                    st.checkbox(
+                        "Select " + name,
+                        key=checkbox_key,
+                        label_visibility="collapsed",
+                    )
+                with row_rank:
+                    st.markdown(f'<span class="prism-rank">#{rank}</span>', unsafe_allow_html=True)
+                with row_details:
+                    st.markdown(
+                        f'''<div class="prism-player-name">{html.escape(str(name))}</div>
+                        <div class="prism-player-meta"><span class="prism-role">{html.escape(role)}</span>
+                        &nbsp; BAT <b>{float(player['batting']):.2f}</b>
+                        &nbsp; BOWL <b>{float(player['bowling']):.2f}</b>
+                        &nbsp; FIELD <b>{float(player['fielding']):.2f}</b></div>''',
+                        unsafe_allow_html=True,
+                    )
+                with row_total:
+                    st.markdown(f'<div class="prism-total">{player_score(player):.2f}</div><div class="prism-skill-label">Strength</div>', unsafe_allow_html=True)
+
+    # Re-read state after the checkboxes have rendered.
+    selected_names = {
+        player["name"] for player in ranked_master
+        if st.session_state.get(f"select_player_{player['name']}", False)
+    }
+    selected_players = [player for player in ranked_master if player["name"] in selected_names]
+
+    st.divider()
+    generate_col, note_col = st.columns([1.25, 3.75])
+    with generate_col:
+        generate_disabled = len(selected_players) < 2
+        if st.button("🏏 Generate teams", type="primary", disabled=generate_disabled, use_container_width=True, key="generate_match_one"):
+            session.set_initial_players(selected_players)
+            session.generate_match()
+            st.session_state.pop("previous_match", None)
+            st.session_state.pop("mobile_team_view", None)
+            st.rerun()
+    with note_col:
+        if len(selected_players) < 2:
+            st.caption("Select at least 2 players to generate teams.")
+        else:
+            st.caption(f"Ready to balance {len(selected_players)} players. The backend balancing rules are unchanged.")
 
 
 # ============================================================
-# SUBSEQUENT MATCHES
+# SUBSEQUENT MATCHES — ADD / REMOVE / GENERATE / RESET
 # ============================================================
-#
-# From Match 2 onward, the current player pool is already known.
-#
-# The user can:
-#
-#   - Add someone from the master list.
-#   - Remove someone currently playing.
-#   - Generate the next match.
+# Keep the complete existing session workflow available.
+# On desktop these controls remain in the sidebar; on narrow
+# screens Streamlit's sidebar can be opened from the menu.
 # ============================================================
 
 else:
-
-    # --------------------------------------------------------
-    # SIDEBAR HEADER
-    # --------------------------------------------------------
-
-    st.sidebar.title(
-        "🏏 Sunday Cricket"
-    )
-
-    st.sidebar.metric(
-        "Current Players",
-        len(session.players),
-    )
-
-    st.sidebar.metric(
-        "Match",
-        session.match_number,
-    )
-
-    # --------------------------------------------------------
-    # RESET SESSION
-    # --------------------------------------------------------
-    #
-    # Resetting clears the current cricket match session and
-    # returns the app to Match 1.
-    #
-    # A confirmation step is used to prevent accidentally
-    # resetting an active match.
-    # --------------------------------------------------------
+    st.sidebar.markdown("## 🏏 Match controls")
+    st.sidebar.metric("Current players", len(session.players))
+    st.sidebar.metric("Current match", session.match_number)
 
     st.sidebar.divider()
+    st.sidebar.markdown("### Add player")
+    participating_names = {player["name"] for player in session.players}
+    available_players = [player for player in master_players if player["name"] not in participating_names]
+    if available_players:
+        available_names = [player["name"] for player in available_players]
+        player_to_add = st.sidebar.selectbox("Choose a player", available_names, key="add_player_select")
+        if st.sidebar.button("Add player", use_container_width=True, key="add_player_button"):
+            player = next(player for player in available_players if player["name"] == player_to_add)
+            session.add_player(player)
+            st.rerun()
+    else:
+        st.sidebar.caption("All master players are already in the session.")
 
-    if st.sidebar.button(
-        "🔄 Reset / Start New Session",
-        help="Clear the current matches and start again from Match 1.",
-    ):
+    st.sidebar.markdown("### Remove player")
+    current_names = [player["name"] for player in session.players]
+    if current_names:
+        player_to_remove = st.sidebar.selectbox("Choose a player", current_names, key="remove_player_select")
+        if st.sidebar.button("Remove player", use_container_width=True, key="remove_player_button"):
+            session.remove_player(player_to_remove)
+            st.rerun()
 
-        # Don't reset immediately.
-        # Instead, ask the user for confirmation.
+    st.sidebar.divider()
+    if len(session.players) >= 2:
+        if st.sidebar.button("🏏 Generate next match", type="primary", use_container_width=True, key="generate_next_match"):
+            # Save the previous result for the existing match-change summary.
+            previous = session.current_teams
+            session.generate_match()
+            st.session_state.previous_match = previous
+            st.session_state.pop("mobile_team_view", None)
+            st.rerun()
+    else:
+        st.sidebar.warning("At least 2 players are required.")
 
+    st.sidebar.divider()
+    if st.sidebar.button("↻ Reset / start new session", use_container_width=True, key="request_reset"):
         st.session_state.confirm_reset = True
 
-
-    # --------------------------------------------------------
-    # RESET CONFIRMATION
-    # --------------------------------------------------------
-
-    if st.session_state.get(
-        "confirm_reset",
-        False,
-    ):
-
-        st.sidebar.warning(
-            "⚠️ Are you sure? This will clear the "
-            "current match session and return to Match 1."
-        )
-
-        confirm_col1, confirm_col2 = (
-            st.sidebar.columns(2)
-        )
-
-        with confirm_col1:
-
-            if st.button(
-                "Yes, Reset",
-                key="confirm_reset_button",
-            ):
-
-                # Remove the current cricket session.
-                del st.session_state.cricket_session
-
-                # Remove previous-match information.
-                st.session_state.pop(
-                    "previous_match",
-                    None,
-                )
-
-                # Remove the confirmation flag.
-                st.session_state.pop(
-                    "confirm_reset",
-                    None,
-                )
-
-                # Create a fresh CricketSession immediately.
-                st.session_state.cricket_session = (
-                    CricketSession()
-                )
-
+    if st.session_state.get("confirm_reset", False):
+        st.sidebar.warning("This clears the current session and returns to Match 1.")
+        reset_yes, reset_no = st.sidebar.columns(2)
+        with reset_yes:
+            if st.button("Yes, reset", key="confirm_reset_button", use_container_width=True):
+                st.session_state.cricket_session = CricketSession()
+                st.session_state.pop("previous_match", None)
+                st.session_state.pop("confirm_reset", None)
+                clear_match_one_selection()
+                st.rerun()
+        with reset_no:
+            if st.button("Cancel", key="cancel_reset_button", use_container_width=True):
+                st.session_state.pop("confirm_reset", None)
                 st.rerun()
 
 
-        with confirm_col2:
-
-            if st.button(
-                "Cancel",
-                key="cancel_reset_button",
-            ):
-
-                st.session_state.pop(
-                    "confirm_reset",
-                    None,
-                )
-
-                st.rerun()
-
-    # ========================================================
-    # ADD PLAYER
-    # ========================================================
-
-    st.sidebar.subheader(
-        "Add Player"
-    )
-
-    # Names of people already participating.
-    participating_names = {
-        p["name"]
-        for p in session.players
-    }
-
-    # Only master players who aren't currently playing
-    # can be selected.
-    available_players = [
-        p
-        for p in master_players
-        if p["name"]
-        not in participating_names
-    ]
-
-    if available_players:
-
-        available_names = [
-            p["name"]
-            for p in available_players
-        ]
-
-        player_to_add = (
-            st.sidebar.selectbox(
-                "Select player",
-                available_names,
-            )
-        )
-
-        if st.sidebar.button(
-            "Add Player"
-        ):
-
-            # Find the complete player record.
-            player = next(
-                p
-                for p in available_players
-                if p["name"]
-                == player_to_add
-            )
-
-            # Session manager handles validation and addition.
-            session.add_player(
-                player
-            )
-
-            st.rerun()
-
-    else:
-
-        st.sidebar.caption(
-            "No additional master players available."
-        )
-
-    # ========================================================
-    # REMOVE PLAYER
-    # ========================================================
-
-    st.sidebar.subheader(
-        "Remove Player"
-    )
-
-    current_names = [
-        p["name"]
-        for p in session.players
-    ]
-
-    if current_names:
-
-        player_to_remove = (
-            st.sidebar.selectbox(
-                "Select player to remove",
-                current_names,
-            )
-        )
-
-        if st.sidebar.button(
-            "Remove Player"
-        ):
-
-            session.remove_player(
-                player_to_remove
-            )
-
-            st.rerun()
-
-    # ========================================================
-    # GENERATE NEXT MATCH
-    # ========================================================
-
-    st.sidebar.divider()
-
-    if len(session.players) >= 2:
-
-        if st.sidebar.button(
-            "🏏 Generate Next Match",
-            type="primary",
-        ):
-
-            # Save the previous result so the UI can explain
-            # what changed after the new match is generated.
-            previous = (
-                session.current_teams
-            )
-
-            session.generate_match()
-
-            st.session_state.previous_match = (
-                previous
-            )
-
-            st.rerun()
-
-    else:
-
-        st.sidebar.warning(
-            "At least 2 players are required."
-        )
-
-
 # ============================================================
-# CURRENT MATCH DISPLAY
-# ============================================================
-#
-# Everything below this point is presentation.
-#
-# The actual team selection has already been performed by
-# CricketSession -> team_balancer.
+# GENERATED MATCH — TEAM SUMMARIES AND PLAYER LISTS
 # ============================================================
 
 if session.current_teams:
-
-    result = (
-        session.current_teams
-    )
-
-    st.header(
-        f"Match {session.match_number}"
-    )
-
-    # --------------------------------------------------------
-    # Shared player
-    # --------------------------------------------------------
-
-    if result["shared_player"]:
-
-        st.info(
-            "🤝 Shared player: "
-            f"**{result['shared_player']['name']}**"
-        )
-
-    # --------------------------------------------------------
-    # Two team columns
-    # --------------------------------------------------------
-
-    col_a, col_b = (
-        st.columns(2)
-    )
-
-    # ========================================================
-    # TEAM A
-    # ========================================================
-
-    with col_a:
-
-        st.subheader(
-            "🅰️ Team A"
-        )
-
-        team_a_display = order_team_for_display(
-            result["team_a"],
-            result["shared_player"],
-        )
-
-        for player in team_a_display:
-
-            display_player(
-                player
-            )
-
-        st.divider()
-
-        display_team_stats(
-            result["team_a"]
-        )
-
-    # ========================================================
-    # TEAM B
-    # ========================================================
-
-    with col_b:
-
-        st.subheader(
-            "🅱️ Team B"
-        )
-
-        team_b_display = order_team_for_display(
-            result["team_b"],
-            result["shared_player"],
-        )
-
-        for player in team_b_display:
-
-            display_player(
-                player
-            )
-
-        st.divider()
-
-        display_team_stats(
-            result["team_b"]
-        )
-
-    # ========================================================
-    # BALANCE SUMMARY
-    # ========================================================
-
-    st.divider()
-
-    st.subheader(
-        "Balance Summary"
-    )
-
-    col1, col2, col3 = (
-        st.columns(3)
-    )
-
-    with col1:
-
-        st.metric(
-            "Balance Score",
-            f"{result['balance_score']:.2f}",
-        )
-
-    with col2:
-
-        st.metric(
-            "Reshuffle Penalty",
-            f"{result['reshuffle_score']:.2f}",
-        )
-
-    with col3:
-
-        st.metric(
-            "Total Score",
-            f"{result['score']:.2f}",
-        )
-
-    # ========================================================
-    # CHANGES FROM PREVIOUS MATCH
-    # ========================================================
-
-    previous = (
-        st.session_state.get(
-            "previous_match"
-        )
-    )
-
-    if previous:
-
-        st.divider()
-
-        display_changes(
-            previous,
-            result,
-        )
-
-
-# ============================================================
-# MANUAL TEAM BUILDER & TEAM COMPARISON
-# ============================================================
-#
-# This section is independent from the Sunday Match Balancer
-# above.
-#
-# The Sunday Match Balancer automatically calculates an optimal
-# 2-team split.
-#
-# This section allows the user to MANUALLY create any number
-# of teams and choose which players belong to each team.
-#
-# IMPORTANT:
-#
-# The total number of players assigned to teams does NOT have
-# to equal the number of players in the master CSV.
-#
-# Example with 34 players:
-#
-#     Team A = 7
-#     Team B = 7
-#
-#     Remaining = 20
-#
-# This is completely valid.
-# ============================================================
-
-
-st.divider()
-
-st.header("Team Builder & Comparison")
-
-st.write(
-    """
-    Manually create teams from the master player pool and
-    compare their skill and player composition.
-
-    Players do not have to be assigned to a team.
-    Any unused players remain available in the pool.
-    """
-)
-
-
-# ============================================================
-# INITIALIZE TEAM BUILDER
-# ============================================================
-#
-# Streamlit reruns the entire app whenever the user interacts
-# with a widget.
-#
-# Therefore, the TeamBuilder object must live inside
-# st.session_state so that our manually created teams are
-# preserved between reruns.
-# ============================================================
-
-if "team_builder" not in st.session_state:
-
-    st.session_state.team_builder = TeamBuilder(
-        get_master_players()
-    )
-
-
-team_builder = st.session_state.team_builder
-
-
-# ============================================================
-# CREATE A NEW TEAM
-# ============================================================
-
-st.subheader("Create Teams")
-
-
-create_team_col1, create_team_col2 = st.columns(
-    [3, 1]
-)
-
-
-with create_team_col1:
-
-    new_team_name = st.text_input(
-        "Team name",
-        placeholder="Example: Team A",
-        key="manual_team_name",
-    )
-
-
-with create_team_col2:
-
-    # Add some vertical spacing so the button lines up
-    # reasonably with the text input.
-
-    st.write("")
-    st.write("")
-
-    if st.button(
-        "Add Team",
-        key="add_manual_team",
-    ):
-
-        try:
-
-            team_builder.add_team(
-                new_team_name
-            )
-
-            st.success(
-                f"Team '{new_team_name}' created."
-            )
-
-            # Rerun so that the newly created team immediately
-            # appears in the UI.
-
+    result = session.current_teams
+    team_a = result["team_a"]
+    team_b = result["team_b"]
+    shared_player = result.get("shared_player")
+    shared_name = shared_player["name"] if shared_player else None
+
+    # Use ranks from the entire master list, not ranks within each team.
+    ranked_master = ranked_players(master_players)
+    rank_lookup = {player["name"]: rank for rank, player in enumerate(ranked_master, start=1)}
+
+    st.markdown("---")
+    header_col, session_col = st.columns([3, 1])
+    with header_col:
+        st.markdown(f"## Match {session.match_number}")
+        st.caption(f"{len(session.players)} players in this match · teams ordered by individual strength for display")
+    with session_col:
+        if st.button("↻ Reset session", key="main_reset_request", use_container_width=True):
+            st.session_state.confirm_reset = True
             st.rerun()
 
-        except ValueError as error:
-
-            st.error(str(error))
-
-
-# ============================================================
-# PLAYER ASSIGNMENT
-# ============================================================
-#
-# Players that are already assigned to a team are removed
-# from the available-player selector.
-#
-# Therefore a player can only belong to one manually created
-# team at a time.
-# ============================================================
-
-if team_builder.teams:
-
-    st.subheader("Assign Players")
-
-
-    # Get the players who have not yet been assigned.
-
-    available_players = (
-        team_builder.get_available_players()
-    )
-
-    available_player_names = [
-        player["name"]
-        for player in available_players
-    ]
-
-
-    assignment_col1, assignment_col2 = st.columns(2)
-
-
-    with assignment_col1:
-
-        # The user first selects which team they want to
-        # populate.
-
-        selected_team = st.selectbox(
-            "Select team",
-            options=list(
-                team_builder.teams.keys()
-            ),
-            key="manual_selected_team",
+    if shared_player:
+        st.markdown(
+            f'<div class="prism-shared-note">🤝 <b>Shared player:</b> {html.escape(str(shared_name))} <span class="prism-muted">· appears on both teams under the existing odd-player rule</span></div>',
+            unsafe_allow_html=True,
         )
 
-
-    with assignment_col2:
-
-        # Only unassigned players appear here.
-
-        selected_players = st.multiselect(
-            "Select players",
-            options=available_player_names,
-            key="manual_selected_players",
-        )
-
-
-    if st.button(
-        "Add Selected Players to Team",
-        key="assign_players_to_manual_team",
-    ):
-
-        if not selected_players:
-
-            st.warning(
-                "Please select at least one player."
-            )
-
-        else:
-
-            try:
-
-                # Add every selected player to the chosen
-                # team.
-
-                for player_name in selected_players:
-
-                    team_builder.add_player_to_team(
-                        player_name,
-                        selected_team,
-                    )
-
-                st.success(
-                    f"{len(selected_players)} player(s) "
-                    f"added to {selected_team}."
-                )
-
-                # Rerun so the available-player list gets
-                # refreshed and those players disappear from it.
-
-                st.rerun()
-
-            except ValueError as error:
-
-                st.error(str(error))
-
-
-# ============================================================
-# DISPLAY CURRENT TEAMS
-# ============================================================
-#
-# Each manually created team is shown separately.
-#
-# Players inside a team are ordered by overall strength,
-# highest first.
-#
-# This is only presentation ordering.
-# ============================================================
-
-if team_builder.teams:
-
-    st.subheader("Current Teams")
-
-
-    team_names = list(
-        team_builder.teams.keys()
-    )
-
-
-    for team_name in team_names:
-
-        team_players = (
-            team_builder.get_team_players(
-                team_name
-            )
-        )
-
-
-        # Use an expander so that a large number of teams
-        # does not make the page unnecessarily long.
-
-        with st.expander(
-            f"{team_name} — "
-            f"{len(team_players)} players",
-            expanded=True,
-        ):
-
-            if not team_players:
-
-                st.info(
-                    "No players assigned to this team yet."
-                )
-
-            else:
-
-                # Sort strongest players first for display.
-
-                ordered_players = (
-                    order_players_by_strength(
-                        team_players
-                    )
-                )
-
-
-                for player in ordered_players:
-
-                    player_col1, player_col2 = (
-                        st.columns([5, 1])
-                    )
-
-
-                    with player_col1:
-
-                        # Reuse your existing player display
-                        # function so that player information
-                        # looks consistent across the app.
-
-                        display_player(player)
-
-
-                    with player_col2:
-
-                        if st.button(
-                            "Remove",
-                            key=(
-                                "remove_manual_player_"
-                                f"{team_name}_"
-                                f"{player['name']}"
-                            ),
-                        ):
-
-                            # Removing the player puts them
-                            # back into the available pool.
-
-                            team_builder.remove_player_from_team(
-                                player["name"],
-                                team_name,
-                            )
-
-                            st.rerun()
-
-
-            # ------------------------------------------------
-            # REMOVE ENTIRE TEAM
-            # ------------------------------------------------
-            #
-            # Removing a team also releases all players in
-            # that team back into the available pool.
-            # ------------------------------------------------
-
-            if st.button(
-                f"Remove {team_name}",
-                key=(
-                    f"remove_manual_team_"
-                    f"{team_name}"
-                ),
-            ):
-
-                team_builder.remove_team(
-                    team_name
-                )
-
-                st.rerun()
-
-
-# ============================================================
-# AVAILABLE PLAYER POOL
-# ============================================================
-#
-# This shows everyone who has not yet been assigned.
-#
-# This is intentionally NOT an error when players remain here.
-#
-# For example:
-#
-#     34 total players
-#     7 Team A
-#     7 Team B
-#     20 available
-#
-# is a perfectly valid state.
-# ============================================================
-
-st.subheader("Available Player Pool")
-
-
-available_players = (
-    team_builder.get_available_players()
-)
-
-
-st.write(
-    f"**{len(available_players)} players "
-    "remaining unassigned**"
-)
-
-
-if available_players:
-
-    ordered_available_players = (
-        order_players_by_strength(
-            available_players
-        )
-    )
-
-
-    for player in ordered_available_players:
-
-        display_player(player)
-
-else:
-
-    st.info(
-        "All players are currently assigned to teams."
-    )
-
-
-# ============================================================
-# TEAM COMPARISON
-# ============================================================
-#
-# Comparison becomes useful as soon as at least one team
-# exists.
-#
-# An individual team can therefore be inspected even before
-# the user has created Team B, Team C, etc.
-#
-# No ranking or automatic "winner" is produced here.
-# We simply expose the statistics for the user to compare.
-# ============================================================
-
-if team_builder.teams:
-
-    st.divider()
-
-    st.header("Team Comparison")
-
-
-    # Get all teams with their complete player objects.
-
-    all_teams = team_builder.get_all_teams()
-
-
-    # Calculate statistics for every team.
-
-    team_comparisons = compare_teams(
-        all_teams
-    )
-
-
-    # ========================================================
-    # COMPARISON TABLE
-    # ========================================================
-    #
-    # A compact table makes it easy to compare several teams
-    # at the same time.
-    # ========================================================
-
-    comparison_rows = []
-
-
-    for team_name in team_names:
-
-        stats = team_comparisons[
-            team_name
-        ]
-
-
-        comparison_rows.append(
-            {
-                "Team": team_name,
-
-                "Players": stats[
-                    "player_count"
-                ],
-
-                "Bat Avg": round(
-                    stats["batting_average"],
-                    2,
-                ),
-
-                "Bowl Avg": round(
-                    stats["bowling_average"],
-                    2,
-                ),
-
-                "Field Avg": round(
-                    stats["fielding_average"],
-                    2,
-                ),
-
-                "Overall Avg": round(
-                    stats["strength_average"],
-                    2,
-                ),
-
-                "Batsmen": stats[
-                    "batsmen"
-                ],
-
-                "Bowlers": stats[
-                    "bowlers"
-                ],
-
-                "Elite Bat": stats[
-                    "elite_batters"
-                ],
-
-                "Elite Bowl": stats[
-                    "elite_bowlers"
-                ],
-
-                "Strong Bat": stats[
-                    "strong_batters"
-                ],
-
-                "Strong Bowl": stats[
-                    "strong_bowlers"
-                ],
-            }
-        )
-
-
-    st.dataframe(
-        comparison_rows,
-        use_container_width=True,
-        hide_index=True,
-    )
-
-
-    # ========================================================
-    # DETAILED COMPARISON
-    # ========================================================
-    #
-    # Show each team as its own column so the user can inspect
-    # the composition and averages in more detail.
-    # ========================================================
-
-    st.subheader(
-        "Detailed Team Comparison"
-    )
-
-
-    comparison_columns = st.columns(
-        len(team_names)
-    )
-
-
-    for column, team_name in zip(
-        comparison_columns,
-        team_names,
-    ):
-
-        with column:
-
-            st.markdown(
-                f"### {team_name}"
-            )
-
-
-            stats = team_comparisons[
-                team_name
-            ]
-
-
-            st.metric(
-                "Players",
-                stats["player_count"],
-            )
-
-
-            st.metric(
-                "Batting Average",
-                f"{stats['batting_average']:.2f}",
-            )
-
-
-            st.metric(
-                "Bowling Average",
-                f"{stats['bowling_average']:.2f}",
-            )
-
-
-            st.metric(
-                "Fielding Average",
-                f"{stats['fielding_average']:.2f}",
-            )
-
-
-            st.metric(
-                "Overall Strength",
-                f"{stats['strength_average']:.2f}",
-            )
-
-
-            st.write(
-                f"**Batsmen:** "
-                f"{stats['batsmen']}"
-            )
-
-
-            st.write(
-                f"**Bowlers:** "
-                f"{stats['bowlers']}"
-            )
-
-
-            st.write(
-                f"**Elite Batters:** "
-                f"{stats['elite_batters']}"
-            )
-
-
-            st.write(
-                f"**Elite Bowlers:** "
-                f"{stats['elite_bowlers']}"
-            )
-
-
-            st.write(
-                f"**Strong Batters:** "
-                f"{stats['strong_batters']}"
-            )
-
-
-            st.write(
-                f"**Strong Bowlers:** "
-                f"{stats['strong_bowlers']}"
-            )
+    # Summary cards. On mobile, the team-selection buttons below
+    # control which list is displayed beneath the cards.
+    summary_a, summary_b = st.columns(2)
+    with summary_a:
+        render_team_summary("Team A", team_a)
+    with summary_b:
+        render_team_summary("Team B", team_b)
+
+    # Mobile-only picker; desktop still shows both teams side by side.
+    with st.container(key="mobile-team-picker"):
+        mobile_a, mobile_b = st.columns(2)
+        with mobile_a:
+            if st.button("View Team A", key="view_team_a", use_container_width=True):
+                st.session_state.mobile_team_view = "A"
+        with mobile_b:
+            if st.button("View Team B", key="view_team_b", use_container_width=True):
+                st.session_state.mobile_team_view = "B"
+
+    if "mobile_team_view" not in st.session_state:
+        st.session_state.mobile_team_view = "A"
+
+    ordered_a = order_team_for_display(team_a, shared_player)
+    ordered_b = order_team_for_display(team_b, shared_player)
+
+    # Desktop: both lists side by side. CSS hides these two containers on mobile.
+    list_a, list_b = st.columns(2)
+    with list_a:
+        with st.container(key="team-a-desktop"):
+            st.markdown("### 🅰️ Team A players")
+            st.caption(f"{len(team_a)} players")
+            for player in ordered_a:
+                render_player_card(player, rank_lookup, shared_name)
+    with list_b:
+        with st.container(key="team-b-desktop"):
+            st.markdown("### 🅱️ Team B players")
+            st.caption(f"{len(team_b)} players")
+            for player in ordered_b:
+                render_player_card(player, rank_lookup, shared_name)
+
+    # Mobile: a single list below the team cards; selection changes this list.
+    with st.container(key="mobile-team-list"):
+        mobile_team_key = st.session_state.mobile_team_view
+        mobile_team = ordered_a if mobile_team_key == "A" else ordered_b
+        st.markdown(f"### {'🅰️ Team A' if mobile_team_key == 'A' else '🅱️ Team B'} players")
+        st.caption(f"{len(mobile_team)} players · choose a team above to switch this list")
+        for player in mobile_team:
+            render_player_card(player, rank_lookup, shared_name)
+
+    # Existing backend score outputs remain visible, unchanged.
+    st.markdown("---")
+    st.markdown("### Balance details")
+    score1, score2, score3 = st.columns(3)
+    with score1:
+        st.metric("Balance score", f"{float(result['balance_score']):.2f}")
+    with score2:
+        st.metric("Reshuffle penalty", f"{float(result['reshuffle_score']):.2f}")
+    with score3:
+        st.metric("Total score", f"{float(result['score']):.2f}")
+
+    previous = st.session_state.get("previous_match")
+    if previous:
+        st.markdown("---")
+        display_changes(previous, result)
+
+# No standalone Team Builder / Comparison UI is rendered here by design.
