@@ -109,9 +109,9 @@ st.markdown(
         box-shadow:inset 4px 0 0 var(--prism-lime),0 4px 14px rgba(0,0,0,.18) !important;
       }
       [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button:focus-visible { outline:2px solid var(--prism-lime); outline-offset:1px; }
-      .prism-role { color:#D8E1EF; font-weight:800; }
+      .prism-role { color:var(--prism-muted); font-size:.78rem; font-weight:600; text-transform:capitalize; margin-top:2px; }
       .prism-total { color:var(--prism-lime); font-weight:850; }
-      /* Native player buttons are the card and the click target; no overlay hitboxes. */
+      
       /* Primary action */
       button[kind="primary"], button[data-testid="stBaseButton-primary"], [data-testid="stBaseButton-primary"] {
         background:var(--prism-lime) !important; color:#101827 !important; border:1px solid var(--prism-lime) !important;
@@ -126,39 +126,48 @@ st.markdown(
       /* Team summary cards */
       .prism-team-card {
         background:linear-gradient(145deg,#192A40 0%,#111D30 100%);
-        border:1px solid var(--prism-border); border-radius:18px; padding:1rem 1.05rem .9rem; min-height:260px;
+        border:1px solid var(--prism-border); border-radius:18px; padding:1.1rem 1.2rem; min-height:200px;
         transition:border-color .16s ease, box-shadow .16s ease;
       }
       .prism-team-card.is-selected { border:1.5px solid var(--prism-lime); box-shadow:0 0 0 1px rgba(183,243,74,.16),0 8px 24px rgba(0,0,0,.16); }
       .prism-team-summary-head { display:flex; align-items:flex-start; justify-content:space-between; gap:.5rem; }
       .prism-selected-tag { color:#101827; background:var(--prism-lime); border-radius:999px; padding:.18rem .48rem; font-size:.62rem; font-weight:900; letter-spacing:.04em; }
       .prism-shared-tag { color:#101827; background:var(--prism-lime); border-radius:999px; padding:.12rem .42rem; font-size:.62rem; font-weight:900; margin-left:.4rem; white-space:nowrap; }
-      .prism-team-title { font-size:1rem; font-weight:850; margin-bottom:.15rem; }
-      .prism-team-score { color:var(--prism-lime); font-size:1.8rem; font-weight:900; letter-spacing:-.045em; }
-      .prism-team-small { color:var(--prism-muted); font-size:.76rem; }
-      .prism-stat-pill { display:inline-block; margin:.18rem .2rem .02rem 0; padding:.25rem .45rem; border:1px solid var(--prism-border); border-radius:8px; font-size:.7rem; color:var(--prism-text); background:rgba(255,255,255,.025); }
-      .prism-stat-pill b { color:var(--prism-lime); }
-      .prism-bar-row { display:grid; grid-template-columns:58px 1fr 38px; gap:8px; align-items:center; margin-top:.52rem; }
-      .prism-bar-label { color:var(--prism-muted); font-size:.73rem; }
-      .prism-bar-track { height:6px; background:#2A3B52; border-radius:99px; overflow:hidden; }
-      .prism-bar-fill { height:100%; background:var(--prism-lime); border-radius:99px; }
-      .prism-bar-value { font-size:.72rem; font-weight:750; text-align:right; }
+      .prism-team-title { font-size:1.1rem; font-weight:850; margin-bottom:.1rem; }
+      .prism-team-score { color:var(--prism-lime); font-size:2.1rem; font-weight:900; letter-spacing:-.045em; line-height:1.1; }
+      .prism-team-small { color:var(--prism-muted); font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-top:.15rem; }
+      .prism-stat-pill { display:inline-block; margin:.2rem .3rem 0 0; padding:.22rem .5rem; border:1px solid var(--prism-border); border-radius:8px; font-size:.72rem; color:var(--prism-muted); background:rgba(255,255,255,.025); }
+      .prism-stat-pill b { color:var(--prism-text); font-weight:800; }
 
       .st-key-team-a-card-select, .st-key-team-b-card-select { display:none !important; }
       .st-key-team-a-desktop, .st-key-team-b-desktop, .st-key-desktop-team-summaries { display:block; }
       .st-key-mobile-team-list, .st-key-mobile-summary-buttons { display:none; }
       .st-key-team-a-player-*, .st-key-team-b-player-*, .st-key-mobile-team-player-* { margin-bottom:.55rem; }
 
-      /* Player details below the team cards */
-      .prism-player-card { border:1px solid rgba(210,224,245,.16); border-radius:14px; padding:.85rem .9rem; margin:0 0 .9rem 0; background:linear-gradient(145deg,rgba(25,42,64,.96),rgba(17,29,48,.96)); }
+      /* Prototype-aligned Player Card styling */
+      .prism-player-card {
+        border:1px solid rgba(210,224,245,.16);
+        border-radius:16px;
+        padding:1rem 1.1rem;
+        margin:0 0 .75rem 0;
+        background:linear-gradient(145deg,rgba(25,42,64,.96),rgba(17,29,48,.96));
+        transition:all 0.15s ease;
+      }
       .prism-player-card.shared { border-color:rgba(183,243,74,.42); }
-      .prism-player-card-top { display:flex; justify-content:space-between; gap:.5rem; align-items:center; }
-      .prism-player-card-name { display:flex; align-items:center; flex-wrap:wrap; min-width:0; font-size:1.02rem; font-weight:850; }
-      .prism-player-card-rank { color:var(--prism-lime); font-size:.86rem; font-weight:900; white-space:nowrap; }
-      .prism-player-card-skills { display:flex; flex-wrap:wrap; gap:.32rem .8rem; color:#C5D0E0; font-size:.84rem; margin-top:.5rem; }
-      .prism-player-card-skills b { color:var(--prism-text); font-weight:850; font-size:.9rem; }
-      .prism-player-card-footer { margin-top:.34rem; }
-      .prism-role { color:#AAB6C8 !important; font-size:.65rem !important; letter-spacing:.09em; font-weight:750; }
+      .prism-player-card:hover { border-color:rgba(183,243,74,.5); transform:translateY(-1px); box-shadow:0 4px 16px rgba(0,0,0,.25); }
+      
+      .prism-player-card-top { display:flex; justify-content:space-between; align-items:flex-start; gap:.5rem; }
+      .prism-player-card-left { display:flex; align-items:flex-start; gap:.6rem; min-width:0; }
+      .prism-player-card-rank { color:var(--prism-lime); font-size:1.05rem; font-weight:900; white-space:nowrap; }
+      .prism-player-card-name-box { display:flex; flex-direction:column; min-width:0; }
+      .prism-player-card-name { font-size:1.05rem; font-weight:850; color:var(--prism-text); line-height:1.2; display:flex; align-items:center; }
+      .prism-player-card-score { color:var(--prism-lime); font-size:1.55rem; font-weight:900; letter-spacing:-.03em; line-height:1; white-space:nowrap; }
+      
+      .prism-player-card-skills {
+        display:flex; flex-wrap:wrap; gap:.8rem; color:var(--prism-muted); font-size:.78rem; font-weight:700;
+        margin-top:.7rem; padding-top:.6rem; border-top:1px solid rgba(210,224,245,.08); letter-spacing:.03em;
+      }
+      .prism-player-card-skills span b { color:var(--prism-text); font-weight:850; font-size:.82rem; }
 
       /* The Streamlit dialog is centered by Streamlit; keep it on-brand. */
       [data-testid="stDialog"] [data-testid="stMarkdownContainer"] p { color:var(--prism-text); }
@@ -170,27 +179,19 @@ st.markdown(
         .prism-team-card { transition:none !important; }
         h1 { font-size:1.85rem !important; }
         h2 { font-size:1.3rem !important; }
-        .prism-team-card { min-height:0; padding:.8rem; }
-        .prism-bar-row { display:none; }
-        .prism-team-small { font-size:.67rem; }
-        .prism-team-title { font-size:.88rem; }
-        .prism-team-score { font-size:1.35rem; }
+        .prism-team-card { min-height:0; padding:.9rem; }
+        .prism-team-score { font-size:1.6rem; }
+        .prism-player-card { padding:.9rem; }
+        .prism-player-card-score { font-size:1.35rem; }
         .prism-selected-tag { font-size:.55rem; padding:.15rem .35rem; }
-        .prism-player-card-top { align-items:flex-start; }
-        .prism-player-card-name { overflow-wrap:anywhere; }
-        .prism-player-card-rank { flex-shrink:0; }
-        .prism-stat-pill { font-size:.64rem; padding:.22rem .34rem; }
-        .prism-player-meta { font-size:.69rem; }
+        .prism-stat-pill { font-size:.68rem; padding:.2rem .4rem; }
         [class*="st-key-player-selection-row-"] { margin-bottom:.9rem !important; }
         [class*="st-key-player-selection-row-"] button { min-height:6rem !important; padding:.82rem .8rem !important; font-size:.82rem !important; line-height:1.55 !important; }
-        [class*="st-key-team-a-desktop"] [data-testid="stElementContainer"],
-        [class*="st-key-team-b-desktop"] [data-testid="stElementContainer"],
-        [class*="st-key-mobile-team-list"] [data-testid="stElementContainer"] { margin-bottom:.8rem !important; }
         .st-key-team-a-desktop, .st-key-team-b-desktop, .st-key-desktop-team-summaries { display:none; }
         .st-key-mobile-team-list, .st-key-mobile-summary-buttons { display:block; }
         .st-key-mobile-summary-buttons button {
           display:block !important; white-space:pre-wrap !important; text-align:left !important; justify-content:flex-start !important;
-          width:100% !important; height:100% !important; min-height:178px !important; padding:.85rem .72rem !important;
+          width:100% !important; height:100% !important; min-height:160px !important; padding:.85rem .75rem !important;
           line-height:1.55 !important; background:linear-gradient(145deg,#20364F 0%,#111D30 100%) !important;
           color:var(--prism-text) !important; border:1px solid rgba(210,224,245,.2) !important; border-radius:16px !important;
           box-shadow:0 4px 14px rgba(0,0,0,.18) !important; transition:none !important;
@@ -200,8 +201,6 @@ st.markdown(
         .st-key-mobile-summary-buttons button:hover { border-color:rgba(183,243,74,.72) !important; }
         .st-key-mobile-summary-buttons [class*="st-key-mobile-summary-card-selected"] button { border:1.5px solid var(--prism-lime) !important; box-shadow:inset 4px 0 0 var(--prism-lime),0 0 0 1px rgba(183,243,74,.18) !important; }
         .st-key-team-a-card-select, .st-key-team-b-card-select { display:none !important; }
-        .st-key-team-card-a, .st-key-team-card-b { position:relative; }
-        [class*="st-key-player-selection-row-"] button { min-height:6rem !important; padding:.82rem .8rem !important; }
       }
     </style>
     """,
@@ -239,12 +238,12 @@ def player_role(player):
     batsman = bool(player.get("is_batsman", False))
     bowler = bool(player.get("is_bowler", False))
     if batsman and bowler:
-        return "ALL-ROUNDER"
+        return "All-rounder"
     if batsman:
-        return "BATTER"
+        return "Batsman"
     if bowler:
-        return "BOWLER"
-    return "FIELD"
+        return "Bowler"
+    return "Fielder"
 
 
 def player_score(player):
@@ -283,41 +282,30 @@ def team_impact_counts(team):
     return {"elite": sum(score >= 9 for score in scores), "strong": sum(8 <= score < 9 for score in scores)}
 
 
-def render_skill_bar(label, value):
-    value = max(0.0, min(10.0, float(value)))
-    st.markdown(
-        f'''<div class="prism-bar-row">
-          <div class="prism-bar-label">{html.escape(label)}</div>
-          <div class="prism-bar-track"><div class="prism-bar-fill" style="width:{value * 10:.1f}%"></div></div>
-          <div class="prism-bar-value">{value:.2f}</div>
-        </div>''',
-        unsafe_allow_html=True,
-    )
-
-
 def render_team_summary(team_name, team, selected=False):
     stats = team_stats(team)
-    roles = role_counts(team)
     impact = team_impact_counts(team)
     averages = team_skill_averages(team)
     selected_tag = '<span class="prism-selected-tag">PLAYERS SHOWN</span>' if selected else ''
     selected_class = " is-selected" if selected else ""
     st.markdown(
         f'''<div class="prism-team-card{selected_class}">
-          <div class="prism-team-summary-head"><div>
-            <div class="prism-team-title">{html.escape(team_name)}</div>
-            <div class="prism-team-score">{float(stats['strength']):.2f}</div>
-            <div class="prism-team-small">TEAM STRENGTH · {len(team)} PLAYERS</div>
-          </div>{selected_tag}</div>
-          <div style="margin-top:.55rem"><span class="prism-stat-pill"><b>{impact['elite']}</b> Elite</span>
-            <span class="prism-stat-pill"><b>{impact['strong']}</b> Strong</span></div>
-          <div style="margin-top:.25rem"><span class="prism-stat-pill"><b>{roles['batters']}</b> Batters</span>
-            <span class="prism-stat-pill"><b>{roles['bowlers']}</b> Bowlers</span>
-            <span class="prism-stat-pill"><b>{roles['all_rounders']}</b> All-rounders</span>
-            <span class="prism-stat-pill"><b>{roles['field_players']}</b> Fielders</span></div>
-          <div class="prism-bar-row"><div class="prism-bar-label">Batting</div><div class="prism-bar-track"><div class="prism-bar-fill" style="width:{max(0.0,min(10.0,averages['batting'])) * 10:.1f}%"></div></div><div class="prism-bar-value">{averages['batting']:.2f}</div></div>
-          <div class="prism-bar-row"><div class="prism-bar-label">Bowling</div><div class="prism-bar-track"><div class="prism-bar-fill" style="width:{max(0.0,min(10.0,averages['bowling'])) * 10:.1f}%"></div></div><div class="prism-bar-value">{averages['bowling']:.2f}</div></div>
-          <div class="prism-bar-row"><div class="prism-bar-label">Fielding</div><div class="prism-bar-track"><div class="prism-bar-fill" style="width:{max(0.0,min(10.0,averages['fielding'])) * 10:.1f}%"></div></div><div class="prism-bar-value">{averages['fielding']:.2f}</div></div>
+          <div class="prism-team-summary-head">
+            <div>
+              <div class="prism-team-title">{html.escape(team_name)}</div>
+              <div class="prism-team-score">{float(stats['strength']):.1f}</div>
+              <div class="prism-team-small">Total strength</div>
+            </div>
+            {selected_tag}
+          </div>
+          <div style="margin-top:.7rem;">
+            <span class="prism-stat-pill">Bat <b>{averages['batting']:.0f}</b></span>
+            <span class="prism-stat-pill">Bowl <b>{averages['bowling']:.0f}</b></span>
+          </div>
+          <div style="margin-top:.3rem;">
+            <span class="prism-stat-pill">Elite <b>{impact['elite']}</b></span>
+            <span class="prism-stat-pill">Strong <b>{impact['strong']}</b></span>
+          </div>
         </div>''',
         unsafe_allow_html=True,
     )
@@ -327,22 +315,28 @@ def render_player_card(player, rank_lookup, shared_names=None):
     name = html.escape(str(player["name"]))
     role = html.escape(player_role(player))
     rank = rank_lookup.get(player["name"], "—")
-    score = player_score(player)
+    score = player_score(player) * 30  # Scaled to prototype point representation or adjust as needed
     shared_names = shared_names or set()
     is_shared = player["name"] in shared_names
     shared_tag = '<span class="prism-shared-tag">SHARED</span>' if is_shared else ''
+    
     st.markdown(
         f'''<div class="prism-player-card{' shared' if is_shared else ''}">
           <div class="prism-player-card-top">
-            <div class="prism-player-card-name"><span class="prism-player-card-rank">#{rank}</span>&nbsp; {name}{shared_tag}</div>
-            <div class="prism-player-card-rank">{score:.2f}</div>
+            <div class="prism-player-card-left">
+              <span class="prism-player-card-rank">#{rank}</span>
+              <div class="prism-player-card-name-box">
+                <div class="prism-player-card-name">{name}{shared_tag}</div>
+                <div class="prism-role">{role}</div>
+              </div>
+            </div>
+            <div class="prism-player-card-score">{score:.0f}</div>
           </div>
           <div class="prism-player-card-skills">
-            <span>BAT <b>{float(player['batting']):.2f}</b></span>
-            <span>BOWL <b>{float(player['bowling']):.2f}</b></span>
-            <span>FIELD <b>{float(player['fielding']):.2f}</b></span>
+            <span>BAT <b>{float(player['batting']):.1f}</b></span>
+            <span>BOWL <b>{float(player['bowling']):.1f}</b></span>
+            <span>FIELD <b>{float(player['fielding']):.1f}</b></span>
           </div>
-          <div class="prism-player-card-footer"><span class="prism-role">{role}</span></div>
         </div>''',
         unsafe_allow_html=True,
     )
@@ -390,25 +384,6 @@ def display_changes(previous, current):
 
 def selection_key(name):
     return f"select_player_{name}"
-
-
-def sync_selection_widget_state(players):
-    """Initialize widget values from durable selected-name state."""
-    selected = st.session_state.setdefault("selected_player_names", set())
-    for player in players:
-        key = selection_key(player["name"])
-        if key not in st.session_state:
-            st.session_state[key] = player["name"] in selected
-
-
-def on_player_checkbox_change(name):
-    """Persist checkbox changes separately from widgets that search may hide."""
-    selected = set(st.session_state.get("selected_player_names", set()))
-    if st.session_state.get(selection_key(name), False):
-        selected.add(name)
-    else:
-        selected.discard(name)
-    st.session_state.selected_player_names = selected
 
 
 def toggle_player_from_row(name):
@@ -459,8 +434,6 @@ def reset_session_dialog():
 # APP HEADER
 # ============================================================
 
-# Keep the generated-team view intentionally minimal. The product header is
-# shown only on the selection screen, not above the Team A / Team B cards.
 edit_mode = bool(st.session_state.get("edit_players_mode", False))
 if session.match_number == 0 or edit_mode:
     st.markdown('<div class="prism-eyebrow">PRISM · SUNDAY CRICKET</div>', unsafe_allow_html=True)
@@ -469,8 +442,6 @@ if session.match_number == 0 or edit_mode:
     ranked_master = ranked_players(master_players)
     rank_lookup = {player["name"]: rank for rank, player in enumerate(ranked_master, start=1)}
 
-    # For the first match, initialize an empty selection. For edit mode,
-    # the current session's players are selected before this view is shown.
     if "selected_player_names" not in st.session_state:
         st.session_state.selected_player_names = set()
 
@@ -482,14 +453,10 @@ if session.match_number == 0 or edit_mode:
 
     filtered_players = [p for p in ranked_master if p["name"].casefold().startswith(search_text.strip().casefold())]
 
-    # Durable selected-name state is separate from visible checkbox widgets.
-    # This prevents Streamlit from losing selections when search hides rows.
     selected_names = set(st.session_state.get("selected_player_names", set()))
     selected_players = [p for p in ranked_master if p["name"] in selected_names]
     generate_label = "Generate Teams" if session.match_number == 0 else "Generate Next Match"
 
-    # Keep the selection count and primary action together inside one card,
-    # positioned before the ranked player list for easy access.
     with st.container(key="selection-action-card"):
         action_count_col, clear_col, action_button_col = st.columns([1, 1, 1], vertical_alignment="center")
         with action_count_col:
@@ -514,8 +481,6 @@ if session.match_number == 0 or edit_mode:
                     session.generate_match()
                     st.session_state.pop("previous_match", None)
                 else:
-                    # Reconcile selection through the existing session methods so the
-                    # backend's add/remove and reshuffle behavior remains authoritative.
                     selected_by_name = {p["name"]: p for p in selected_players}
                     current_by_name = {p["name"]: p for p in session.players}
                     for current_name in list(current_by_name):
@@ -531,13 +496,10 @@ if session.match_number == 0 or edit_mode:
                 st.session_state.pop("mobile_team_view", None)
                 st.rerun()
 
-    # Each visible player card is a single native button. Its hover and click
-    # boundaries therefore match exactly on desktop and mobile.
     for player in filtered_players:
         name = player["name"]
         rank = rank_lookup[name]
         is_selected = name in selected_names
-        selection_mark = "✓ SELECTED" if is_selected else "＋ SELECT"
         row_label = (
             f"{'✓ SELECTED' if is_selected else '＋ SELECT'}   **#{rank}  {name}**   ·   "
             f"**{player_score(player):.2f} STRENGTH**  "
@@ -553,7 +515,6 @@ if session.match_number == 0 or edit_mode:
             )
 
 
-
 # ============================================================
 # GENERATED MATCH — TEAM CARDS AND PLAYER DETAILS ONLY
 # ============================================================
@@ -566,11 +527,10 @@ if session.current_teams and not st.session_state.get("edit_players_mode", False
     ranked_master = ranked_players(master_players)
     rank_lookup = {player["name"]: rank for rank, player in enumerate(ranked_master, start=1)}
 
-    # Desktop displays both summary cards without a selected highlight.
-    # On mobile, native buttons themselves form the complete tappable cards.
     if "mobile_team_view" not in st.session_state:
         st.session_state.mobile_team_view = "A"
     shared_names = {p["name"] for p in team_a} & {p["name"] for p in team_b}
+    
     with st.container(key="desktop-team-summaries"):
         summary_a, summary_b = st.columns(2, gap="medium")
         with summary_a:
@@ -583,16 +543,15 @@ if session.current_teams and not st.session_state.get("edit_players_mode", False
         for team_label, team, column, team_key in [
             ("Team A", team_a, mobile_a, "A"), ("Team B", team_b, mobile_b, "B")
         ]:
-            roles = role_counts(team)
-            impact = team_impact_counts(team)
             stats = team_stats(team)
+            averages = team_skill_averages(team)
+            impact = team_impact_counts(team)
             is_mobile_selected = st.session_state.mobile_team_view == team_key
             button_text = (
-                f"**{team_label}**  {'✓ PLAYERS SHOWN' if is_mobile_selected else 'TAP TO VIEW'}"
-                f"\n**{float(stats['strength']):.2f}**  ·  {len(team)} PLAYERS"
-                f"\n**{impact['elite']}** ELITE  ·  **{impact['strong']}** STRONG"
-                f"\nBATTERS **{roles['batters']}**  ·  BOWLERS **{roles['bowlers']}**"
-                f"\nALL-ROUNDERS **{roles['all_rounders']}**  ·  FIELDERS **{roles['field_players']}**"
+                f"**{team_label}**  {'✓ SHOWN' if is_mobile_selected else 'TAP'}"
+                f"\n**{float(stats['strength']):.1f}** Total strength"
+                f"\nBat {averages['batting']:.0f} · Bowl {averages['bowling']:.0f}"
+                f"\nElite {impact['elite']} · Strong {impact['strong']}"
             )
             with column:
                 with st.container(key=f"mobile-summary-card-selected-{team_key}" if is_mobile_selected else f"mobile-summary-card-{team_key}"):
@@ -603,22 +562,26 @@ if session.current_teams and not st.session_state.get("edit_players_mode", False
 
     ordered_a = sorted(team_a, key=lambda p: (p["name"] not in shared_names, -player_score(p), p["name"].casefold()))
     ordered_b = sorted(team_b, key=lambda p: (p["name"] not in shared_names, -player_score(p), p["name"].casefold()))
+    
     desktop_a, desktop_b = st.columns(2, gap="medium")
     with desktop_a:
+        st.markdown("### Team A Players")
         with st.container(key="team-a-desktop"):
             for player in ordered_a:
                 render_player_card(player, rank_lookup, shared_names)
     with desktop_b:
+        st.markdown("### Team B Players")
         with st.container(key="team-b-desktop"):
             for player in ordered_b:
                 render_player_card(player, rank_lookup, shared_names)
 
     with st.container(key="mobile-team-list"):
+        st.markdown(f"### Team {st.session_state.mobile_team_view} Players")
         mobile_team = ordered_a if st.session_state.mobile_team_view == "A" else ordered_b
         for player in mobile_team:
             render_player_card(player, rank_lookup, shared_names)
 
-    # Controls stay at the bottom of the team view.
+    st.markdown("<br>", unsafe_allow_html=True)
     action_edit, action_reset = st.columns(2, gap="medium")
     with action_edit:
         if st.button("Edit players", use_container_width=True, key="edit_players_from_team_view"):
@@ -630,5 +593,3 @@ if session.current_teams and not st.session_state.get("edit_players_mode", False
     with action_reset:
         if st.button("Reset session", use_container_width=True, key="reset_from_team_view"):
             reset_session_dialog()
-
-# No sidebar controls and no standalone Manual Team Builder / Comparison UI.
