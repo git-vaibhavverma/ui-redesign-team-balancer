@@ -33,6 +33,7 @@ from config import (
     IMPACT_THRESHOLDS,
     ELITE_PLAYER_PENALTY,
     STRONG_PLAYER_PENALTY,
+    WEAK_PLAYER_PENALTY,
     RESHUFFLE_PENALTY,
 )
 
@@ -141,6 +142,28 @@ def is_strong_bowler(player):
     )
 
 
+def is_weak_batter(player):
+    """
+    Return True when the player's batting rating is Weak.
+    """
+
+    return (
+        player["batting"]
+        <= IMPACT_THRESHOLDS["weak"]
+    )
+
+
+def is_weak_bowler(player):
+    """
+    Return True when the player's bowling rating is Weak.
+    """
+
+    return (
+        player["bowling"]
+        <= IMPACT_THRESHOLDS["weak"]
+    )
+
+
 # ============================================================
 # TEAM STATISTICS
 # ============================================================
@@ -246,6 +269,22 @@ def team_stats(team):
         if is_strong_bowler(p)
     )
 
+    # --------------------------------------------------------
+    # Weak players
+    # --------------------------------------------------------
+
+    weak_batters = sum(
+        1
+        for p in team
+        if is_weak_batter(p)
+    )
+
+    weak_bowlers = sum(
+        1
+        for p in team
+        if is_weak_bowler(p)
+    )
+
     return {
         "batting": batting_total,
         "bowling": bowling_total,
@@ -261,6 +300,9 @@ def team_stats(team):
 
         "strong_batters": strong_batters,
         "strong_bowlers": strong_bowlers,
+
+        "weak_batters": weak_batters,
+        "weak_bowlers": weak_bowlers,
     }
 
 
@@ -458,6 +500,30 @@ def base_balance_score(team_a, team_b):
             stats_b["strong_bowlers"],
         )
         * STRONG_PLAYER_PENALTY
+    )
+
+    # --------------------------------------------------------
+    # 11. Weak batting impact
+    # --------------------------------------------------------
+
+    score += (
+        normalized_difference(
+            stats_a["weak_batters"],
+            stats_b["weak_batters"],
+        )
+        * WEAK_PLAYER_PENALTY
+    )
+
+    # --------------------------------------------------------
+    # 12. Weak bowling impact
+    # --------------------------------------------------------
+
+    score += (
+        normalized_difference(
+            stats_a["weak_bowlers"],
+            stats_b["weak_bowlers"],
+        )
+        * WEAK_PLAYER_PENALTY
     )
 
     return score

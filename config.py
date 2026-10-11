@@ -92,6 +92,7 @@ OVERALL_STRENGTH_PENALTY = 0.20
 IMPACT_THRESHOLDS = {
     "elite": 8.50,
     "strong": 7.00,
+    "weak": 5.00,
 }
 
 
@@ -109,6 +110,8 @@ IMPACT_THRESHOLDS = {
 ELITE_PLAYER_PENALTY = 0.30
 
 STRONG_PLAYER_PENALTY = 0.20
+
+WEAK_PLAYER_PENALTY = 0.20
 
 
 # ------------------------------------------------------------
