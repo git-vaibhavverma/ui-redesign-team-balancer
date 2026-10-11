@@ -80,19 +80,24 @@ st.markdown(
       /* Player rows */
       [class*="st-key-player-selection-row-"] { margin:0 0 .72rem 0 !important; padding:0 !important; }
       [class*="st-key-player-selection-row-"] [data-testid="stButton"] { width:100%; margin:0 !important; }
+      [class*="st-key-player-selection-row-"] [data-testid="stButton"] { width:100%; }
       [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button {
-        display:block; width:100%; min-height:0; height:auto; white-space:normal; text-align:left;
-        padding:.78rem .9rem; border:1px solid var(--prism-border); border-radius:14px;
-        background:linear-gradient(145deg,rgba(25,42,64,.96) 0%,rgba(17,29,48,.96) 100%);
-        color:var(--prism-text); line-height:1.55; box-shadow:0 3px 10px rgba(0,0,0,.08);
+        display:flex; align-items:center; width:100%; min-height:5.1rem; height:auto; white-space:normal; text-align:left;
+        padding:.82rem 1rem; border:1px solid var(--prism-border); border-radius:15px;
+        background:linear-gradient(145deg,#192A40 0%,#111D30 100%);
+        color:var(--prism-text); line-height:1.65; box-shadow:0 3px 10px rgba(0,0,0,.12);
         transition:border-color .14s ease, background .14s ease;
       }
-      [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button p { margin:0; line-height:1.55; }
-      [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button strong { color:var(--prism-text); font-weight:800; }
+      [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button p { margin:0; line-height:1.65; white-space:pre-line; }
+      [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button strong { color:var(--prism-text); font-weight:850; }
       [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button:hover {
-        border-color:rgba(183,243,74,.65); background:linear-gradient(145deg,#1D314B 0%,#14243A 100%);
+        border-color:rgba(183,243,74,.72); background:linear-gradient(145deg,#20364A 0%,#14243A 100%);
         color:var(--prism-text); box-shadow:0 4px 14px rgba(0,0,0,.14);
       }
+      [class*="st-key-player-selection-row-"] [data-testid="stElementContainer"] { margin-bottom:.72rem !important; }
+      [class*="st-key-team-a-desktop"] [data-testid="stElementContainer"],
+      [class*="st-key-team-b-desktop"] [data-testid="stElementContainer"],
+      [class*="st-key-mobile-team-list"] [data-testid="stElementContainer"] { margin-bottom:.68rem !important; }
       [class*="st-key-player-selection-row-selected-"] [data-testid="stButton"] > button {
         border-color:rgba(183,243,74,.75); background:linear-gradient(145deg,#20364A 0%,#172A3D 100%);
       }
@@ -166,8 +171,12 @@ st.markdown(
         .prism-player-card-rank { flex-shrink:0; }
         .prism-stat-pill { font-size:.64rem; padding:.22rem .34rem; }
         .prism-player-meta { font-size:.69rem; }
-        [class*="st-key-player-selection-row-"] { margin-bottom:.7rem !important; }
-        [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button { padding:.72rem .7rem; font-size:.83rem; }
+        [class*="st-key-player-selection-row-"] { margin-bottom:.78rem !important; }
+        [class*="st-key-player-selection-row-"] [data-testid="stElementContainer"] { margin-bottom:.78rem !important; }
+        [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button { min-height:5.25rem; padding:.76rem .78rem; font-size:.83rem; line-height:1.7; }
+        [class*="st-key-team-a-desktop"] [data-testid="stElementContainer"],
+        [class*="st-key-team-b-desktop"] [data-testid="stElementContainer"],
+        [class*="st-key-mobile-team-list"] [data-testid="stElementContainer"] { margin-bottom:.8rem !important; }
         .st-key-team-a-desktop, .st-key-team-b-desktop, .st-key-desktop-team-summaries { display:none; }
         .st-key-mobile-team-list, .st-key-mobile-summary-buttons { display:block; }
         .st-key-mobile-summary-buttons [data-testid="stBaseButton-secondary"] {
@@ -181,7 +190,7 @@ st.markdown(
         .st-key-mobile-summary-buttons [class*="st-key-mobile-summary-card-selected"] [data-testid="stBaseButton-secondary"] { border-color:var(--prism-lime); box-shadow:0 0 0 1px rgba(183,243,74,.18); }
         .st-key-team-a-card-select, .st-key-team-b-card-select { display:none !important; }
         .st-key-team-card-a, .st-key-team-card-b { position:relative; }
-        [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button { padding:.72rem .7rem; font-size:.83rem; }
+        [class*="st-key-player-selection-row-"] [data-testid="stButton"] > button { min-height:5.25rem; padding:.76rem .78rem; font-size:.83rem; }
       }
     </style>
     """,
@@ -471,7 +480,7 @@ if session.match_number == 0 or edit_mode:
     # Keep the selection count and primary action together inside one card,
     # positioned before the ranked player list for easy access.
     with st.container(key="selection-action-card"):
-        action_count_col, clear_col, action_button_col = st.columns([1, 0.9, 1.65], vertical_alignment="center")
+        action_count_col, clear_col, action_button_col = st.columns([1, 1, 1], vertical_alignment="center")
         with action_count_col:
             st.markdown(
                 f'''<div class="prism-selection-card"><div><div class="prism-selection-label">Selected players</div>
@@ -517,11 +526,11 @@ if session.match_number == 0 or edit_mode:
         name = player["name"]
         rank = rank_lookup[name]
         is_selected = name in selected_names
-        state_mark = "✓ SELECTED" if is_selected else "＋ SELECT"
+        selection_mark = "✓ SELECTED" if is_selected else "＋ SELECT"
         row_label = (
-            f"{'**✓ SELECTED**' if is_selected else '＋ SELECT'}  ·  **#{rank} {name}**  ·  **{player_score(player):.2f}** strength  "
-            f"\n\n{player_role(player)}  ·  BAT **{float(player['batting']):.2f}**  ·  "
-            f"BOWL **{float(player['bowling']):.2f}**  ·  FIELD **{float(player['fielding']):.2f}**"
+            f"{selection_mark}     #{rank}  {name}     ·     {player_score(player):.2f} STRENGTH  "
+            f"\n{player_role(player)}     ·     BAT {float(player['batting']):.2f}     ·     "
+            f"BOWL {float(player['bowling']):.2f}     ·     FIELD {float(player['fielding']):.2f}"
         )
         row_state = "selected-" if is_selected else ""
         with st.container(key=f"player-selection-row-{row_state}{rank}"):
