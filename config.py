@@ -50,9 +50,9 @@ SKILL_WEIGHTS = {
 
 
 ROLE_PENALTIES = {
-    "batsmen": 0.20,
-    "bowlers": 0.20,
-    "fielders": 0.20,
+    "batsmen": 0.10,
+    "bowlers": 0.10,
+    "fielders": 0.10,
 }
 
 # ------------------------------------------------------------
@@ -107,11 +107,11 @@ IMPACT_THRESHOLDS = {
 # a greater concentration of high-impact ability.
 # ------------------------------------------------------------
 
-ELITE_PLAYER_PENALTY = 0.30
+ELITE_PLAYER_PENALTY = 0.20
 
-STRONG_PLAYER_PENALTY = 0.20
+STRONG_PLAYER_PENALTY = 0.10
 
-WEAK_PLAYER_PENALTY = 0.20
+WEAK_PLAYER_PENALTY = 0.10
 
 
 # ------------------------------------------------------------
