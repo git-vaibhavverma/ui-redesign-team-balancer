@@ -88,6 +88,7 @@ st.markdown(
       [class*="st-key-mobile-team-player-"] [data-testid="stHorizontalBlock"] {
         position:relative !important; align-items:stretch !important; gap:0 !important; padding:0 !important;
         border:0 !important; background:transparent !important; box-shadow:none !important; margin:0 !important;
+        width:100% !important; min-width:0 !important; overflow:visible !important;
       }
       [class*="st-key-player-selection-row-"] [data-testid="column"],
       [class*="st-key-team-a-player-"] [data-testid="column"],
@@ -103,17 +104,49 @@ st.markdown(
       [class*="st-key-team-a-player-"] [data-testid="column"]:last-child,
       [class*="st-key-team-b-player-"] [data-testid="column"]:last-child,
       [class*="st-key-mobile-team-player-"] [data-testid="column"]:last-child {
-        position:absolute !important; right:.62rem !important; bottom:.35rem !important; z-index:3 !important;
-        width:2rem !important; max-width:2rem !important; flex:0 0 2rem !important;
+        position:absolute !important; right:.62rem !important; bottom:.78rem !important; top:auto !important;
+        z-index:4 !important; width:2.65rem !important; min-width:2.65rem !important;
+        max-width:2.65rem !important; flex:0 0 2.65rem !important; padding:0 !important;
+        margin:0 !important; transform:none !important; align-self:auto !important;
+      }
+      [class*="st-key-player-selection-row-"] [data-testid="column"]:last-child [data-testid="stElementContainer"],
+      [class*="st-key-team-a-player-"] [data-testid="column"]:last-child [data-testid="stElementContainer"],
+      [class*="st-key-team-b-player-"] [data-testid="column"]:last-child [data-testid="stElementContainer"],
+      [class*="st-key-mobile-team-player-"] [data-testid="column"]:last-child [data-testid="stElementContainer"] {
+        width:100% !important; margin:0 !important; padding:0 !important;
       }
       [class*="st-key-player-selection-row-"] .prism-player-card,
       [class*="st-key-team-a-player-"] .prism-player-card,
       [class*="st-key-team-b-player-"] .prism-player-card,
       [class*="st-key-mobile-team-player-"] .prism-player-card { margin:0 !important; height:100%; }
-      [data-testid="stCheckbox"] { display:flex; align-items:center; justify-content:center; min-width:1.7rem; }
-      [data-testid="stCheckbox"] label { gap:0 !important; }
-      [data-testid="stCheckbox"] label > div:last-child { display:none !important; }
-      [data-testid="stCheckbox"] input { accent-color:var(--prism-lime); }
+      [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"],
+      [class*="st-key-team-a-player-"] [data-testid="stCheckbox"],
+      [class*="st-key-team-b-player-"] [data-testid="stCheckbox"],
+      [class*="st-key-mobile-team-player-"] [data-testid="stCheckbox"] {
+        display:flex !important; align-items:center !important; justify-content:flex-end !important;
+        min-width:2.65rem !important; width:100% !important; margin:0 !important; padding:0 !important;
+      }
+      [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] label,
+      [class*="st-key-team-a-player-"] [data-testid="stCheckbox"] label,
+      [class*="st-key-team-b-player-"] [data-testid="stCheckbox"] label,
+      [class*="st-key-mobile-team-player-"] [data-testid="stCheckbox"] label { gap:0 !important; padding:0 !important; }
+      [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] label > div:last-child,
+      [class*="st-key-team-a-player-"] [data-testid="stCheckbox"] label > div:last-child,
+      [class*="st-key-team-b-player-"] [data-testid="stCheckbox"] label > div:last-child,
+      [class*="st-key-mobile-team-player-"] [data-testid="stCheckbox"] label > div:last-child { display:none !important; }
+      [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] input,
+      [class*="st-key-team-a-player-"] [data-testid="stCheckbox"] input,
+      [class*="st-key-team-b-player-"] [data-testid="stCheckbox"] input,
+      [class*="st-key-mobile-team-player-"] [data-testid="stCheckbox"] input {
+        accent-color:var(--prism-lime); transform:scale(1.22); transform-origin:center;
+      }
+      /* Scale the visible checkbox box itself (not just its hidden input). */
+      [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] label > div:first-child,
+      [class*="st-key-team-a-player-"] [data-testid="stCheckbox"] label > div:first-child,
+      [class*="st-key-team-b-player-"] [data-testid="stCheckbox"] label > div:first-child,
+      [class*="st-key-mobile-team-player-"] [data-testid="stCheckbox"] label > div:first-child {
+        transform:scale(1.22); transform-origin:right center;
+      }
       .prism-player-card.is-selected { border:1.5px solid var(--prism-lime); box-shadow:inset 4px 0 0 var(--prism-lime),0 4px 14px rgba(0,0,0,.18); background:linear-gradient(145deg,#20364F 0%,#14243A 100%); }
       .prism-role { color:#D8E1EF; font-weight:800; }
       .prism-total { color:var(--prism-lime); font-weight:850; }
@@ -130,6 +163,7 @@ st.markdown(
 
       /* Team summary cards */
       .prism-team-card {
+        box-sizing:border-box; width:100%; min-width:0; max-width:100%;
         background:linear-gradient(145deg,#192A40 0%,#111D30 100%);
         border:1px solid var(--prism-border); border-radius:18px; padding:1rem 1.05rem .9rem; min-height:260px;
         transition:border-color .16s ease, box-shadow .16s ease;
@@ -149,7 +183,7 @@ st.markdown(
       .prism-bar-fill { height:100%; background:var(--prism-lime); border-radius:99px; }
       .prism-bar-value { font-size:.72rem; font-weight:750; text-align:right; }
       .prism-mobile-summary-lines { display:none; }
-      .prism-mobile-summary-line { color:var(--prism-text); font-size:.66rem; line-height:1.45; white-space:nowrap; letter-spacing:-.015em; }
+      .prism-mobile-summary-line { color:var(--prism-text); font-size:.72rem; line-height:1.45; white-space:normal; overflow-wrap:anywhere; letter-spacing:-.015em; }
       .prism-mobile-summary-line strong { color:var(--prism-lime); font-weight:850; }
 
       .st-key-team-a-card-select, .st-key-team-b-card-select { display:none !important; }
@@ -157,9 +191,9 @@ st.markdown(
       .st-key-mobile-team-list, .st-key-mobile-summary-buttons { display:none; }
 
       /* Player details below the team cards */
-      .prism-player-card { border:1px solid rgba(210,224,245,.16); border-radius:14px; padding:.85rem .9rem; margin:0 0 .9rem 0; background:linear-gradient(145deg,rgba(25,42,64,.96),rgba(17,29,48,.96)); }
-      .prism-player-card.has-select-control { padding-bottom:.72rem; }
-      .prism-player-card.has-select-control .prism-player-card-skills { padding-right:2.05rem; }
+      .prism-player-card { box-sizing:border-box; width:100%; min-width:0; border:1px solid rgba(210,224,245,.16); border-radius:14px; padding:.85rem .9rem; margin:0 0 .9rem 0; background:linear-gradient(145deg,rgba(25,42,64,.96),rgba(17,29,48,.96)); }
+      .prism-player-card.has-select-control { padding-bottom:.9rem; padding-right:3.65rem; }
+      .prism-player-card.has-select-control .prism-player-card-skills { padding-right:0; }
       .prism-player-card.shared { border-color:rgba(183,243,74,.42); }
       .prism-player-card-top { display:flex; justify-content:space-between; gap:.5rem; align-items:center; }
       .prism-player-card-name { display:flex; align-items:center; flex-wrap:wrap; min-width:0; font-size:1.02rem; font-weight:850; }
@@ -179,7 +213,7 @@ st.markdown(
         .prism-team-card { transition:none !important; }
         h1 { font-size:1.85rem !important; }
         h2 { font-size:1.3rem !important; }
-        .prism-team-card { min-height:0; padding:.8rem; }
+        .prism-team-card { box-sizing:border-box; width:100%; min-width:0; max-width:100%; min-height:0; padding:clamp(.65rem, 2.2vw, .85rem); }
         .prism-bar-row { display:none; }
         .prism-team-small { font-size:.67rem; }
         .prism-team-title { font-size:.88rem; }
@@ -197,33 +231,48 @@ st.markdown(
         .st-key-team-a-desktop, .st-key-team-b-desktop, .st-key-desktop-team-summaries { display:none; }
         .st-key-mobile-team-list, .st-key-mobile-summary-buttons { display:block; }
         /* Mobile summary cards use the same HTML card as desktop, sized to half-width columns. */
+        .st-key-mobile-summary-buttons { width:100% !important; min-width:0 !important; }
         .st-key-mobile-summary-buttons [data-testid="stHorizontalBlock"] {
-          display:grid !important; grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
-          grid-auto-flow:column !important; align-items:stretch !important; gap:.45rem !important;
-          width:100% !important; min-width:0 !important; margin:0 !important;
+          display:grid !important; grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+          grid-auto-flow:row !important; align-items:stretch !important; gap:clamp(.35rem, 1.8vw, .65rem) !important;
+          width:100% !important; min-width:0 !important; max-width:100% !important; margin:0 !important;
         }
         .st-key-mobile-summary-buttons [data-testid="column"] {
-          width:100% !important; min-width:0 !important; max-width:none !important;
-          flex:none !important; padding:0 !important; margin:0 !important;
+          display:block !important; box-sizing:border-box !important;
+          width:100% !important; min-width:0 !important; max-width:100% !important;
+          flex:initial !important; padding:0 !important; margin:0 !important;
         }
-        .st-key-mobile-summary-buttons .prism-team-card { min-width:0; min-height:0; height:100%; padding:.68rem .48rem; border-radius:14px; overflow:hidden; }
-        .st-key-mobile-summary-buttons .prism-team-summary-head { gap:.15rem; }
+        .st-key-mobile-summary-buttons [data-testid="stElementContainer"],
+        .st-key-mobile-summary-buttons [data-testid="stMarkdownContainer"] { box-sizing:border-box !important; width:100% !important; min-width:0 !important; max-width:100% !important; }
+        .st-key-mobile-summary-buttons .prism-team-card { display:block; width:100%; min-width:0; max-width:100%; min-height:0; height:100%; padding:clamp(.62rem, 2.2vw, .82rem); border-radius:14px; overflow-wrap:anywhere; }
+        .st-key-mobile-summary-buttons .prism-team-summary-head { gap:.2rem; }
         .st-key-mobile-summary-buttons .prism-selected-tag { display:none !important; }
-        .st-key-mobile-summary-buttons .prism-team-title { font-size:.8rem; }
-        .st-key-mobile-summary-buttons .prism-team-score { font-size:1.22rem; }
-        .st-key-mobile-summary-buttons .prism-team-small { font-size:.61rem; line-height:1.3; }
+        .st-key-mobile-summary-buttons .prism-team-title { font-size:clamp(.78rem, 2.8vw, .92rem); }
+        .st-key-mobile-summary-buttons .prism-team-score { font-size:clamp(1.2rem, 4.8vw, 1.5rem); line-height:1.12; }
+        .st-key-mobile-summary-buttons .prism-team-small { font-size:clamp(.61rem, 2.2vw, .72rem); line-height:1.35; overflow-wrap:anywhere; }
         .st-key-mobile-summary-buttons .prism-stat-grid,
         .st-key-mobile-summary-buttons .prism-role-count-pills { display:none !important; }
-        .st-key-mobile-summary-buttons .prism-mobile-summary-lines { display:block !important; margin-top:.42rem; }
-        .st-key-mobile-summary-buttons .prism-mobile-summary-line { font-size:clamp(.54rem, 2.3vw, .66rem); line-height:1.55; letter-spacing:-.025em; }
+        .st-key-mobile-summary-buttons .prism-mobile-summary-lines { display:block !important; width:100%; min-width:0; margin-top:.42rem; }
+        .st-key-mobile-summary-buttons .prism-mobile-summary-line { font-size:clamp(.64rem, 2.7vw, .76rem); line-height:1.5; letter-spacing:-.015em; white-space:normal; overflow-wrap:anywhere; }
         .st-key-mobile-summary-buttons [data-testid="stButton"] { width:100% !important; margin-top:.4rem !important; }
         .st-key-mobile-summary-buttons [data-testid="stButton"] > button {
           width:100% !important; min-height:2.1rem !important; height:2.1rem !important; padding:.35rem .3rem !important;
           font-size:.68rem !important; line-height:1.15 !important; white-space:normal !important;
           border:1px solid rgba(210,224,245,.2) !important; border-radius:9px !important; transition:none !important;
         }
-        .st-key-mobile-summary-buttons .prism-stat-grid { display:block; }
-        [class*="st-key-player-selection-row-"] [data-testid="stHorizontalBlock"] { gap:.4rem !important; }
+        [class*="st-key-player-selection-row-"] [data-testid="stHorizontalBlock"] { gap:0 !important; }
+        [class*="st-key-player-selection-row-"] [data-testid="column"]:last-child,
+        [class*="st-key-team-a-player-"] [data-testid="column"]:last-child,
+        [class*="st-key-team-b-player-"] [data-testid="column"]:last-child,
+        [class*="st-key-mobile-team-player-"] [data-testid="column"]:last-child { right:.62rem !important; bottom:.78rem !important; width:2.9rem !important; min-width:2.9rem !important; max-width:2.9rem !important; flex:0 0 2.9rem !important; }
+        [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] input,
+        [class*="st-key-team-a-player-"] [data-testid="stCheckbox"] input,
+        [class*="st-key-team-b-player-"] [data-testid="stCheckbox"] input,
+        [class*="st-key-mobile-team-player-"] [data-testid="stCheckbox"] input { transform:scale(1.35); }
+        [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] label > div:first-child,
+        [class*="st-key-team-a-player-"] [data-testid="stCheckbox"] label > div:first-child,
+        [class*="st-key-team-b-player-"] [data-testid="stCheckbox"] label > div:first-child,
+        [class*="st-key-mobile-team-player-"] [data-testid="stCheckbox"] label > div:first-child { transform:scale(1.35); transform-origin:right center; }
         .prism-player-card-name { font-size:1rem; }
         .prism-player-card-score { font-size:1.12rem; }
         .prism-player-card-skills { font-size:.78rem; gap:.22rem .48rem; }
