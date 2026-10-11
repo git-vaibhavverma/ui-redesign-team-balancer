@@ -12,7 +12,6 @@ from st_keyup import st_keyup
 from backend.player_service import PlayerService
 from backend.session_manager import CricketSession
 from backend.team_balancer import team_stats, player_strength
-from config import IMPACT_THRESHOLDS
 
 
 # ============================================================
@@ -78,18 +77,43 @@ st.markdown(
       .prism-selection-count { font-size:1.55rem; line-height:1.2; font-weight:850; color:var(--prism-text); }
       .prism-selection-hint { color:var(--prism-muted); font-size:.76rem; margin-top:.18rem; }
 
-      /* Selection rows only lay out the shared HTML player card beside its checkbox. */
-      [class*="st-key-player-selection-row-"] { margin:0 0 .82rem 0 !important; padding:0 !important; }
-      [class*="st-key-player-selection-row-"] [data-testid="stHorizontalBlock"] {
-        align-items:stretch !important; gap:.55rem !important; padding:0 !important;
+      /* The checkbox is overlaid at the lower-right inside the visual player card. */
+      [class*="st-key-player-selection-row-"], [class*="st-key-team-a-player-"],
+      [class*="st-key-team-b-player-"], [class*="st-key-mobile-team-player-"] {
+        margin:0 0 .82rem 0 !important; padding:0 !important;
+      }
+      [class*="st-key-player-selection-row-"] [data-testid="stHorizontalBlock"],
+      [class*="st-key-team-a-player-"] [data-testid="stHorizontalBlock"],
+      [class*="st-key-team-b-player-"] [data-testid="stHorizontalBlock"],
+      [class*="st-key-mobile-team-player-"] [data-testid="stHorizontalBlock"] {
+        position:relative !important; align-items:stretch !important; gap:0 !important; padding:0 !important;
         border:0 !important; background:transparent !important; box-shadow:none !important; margin:0 !important;
       }
-      [class*="st-key-player-selection-row-"] [data-testid="column"] { min-width:0 !important; }
-      [class*="st-key-player-selection-row-"] .prism-player-card { margin:0 !important; height:100%; }
-      [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] { display:flex; align-items:center; justify-content:center; min-width:2.2rem; }
-      [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] label { gap:0 !important; }
-      [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] label > div:last-child { display:none !important; }
-      [class*="st-key-player-selection-row-"] [data-testid="stCheckbox"] input { accent-color:var(--prism-lime); }
+      [class*="st-key-player-selection-row-"] [data-testid="column"],
+      [class*="st-key-team-a-player-"] [data-testid="column"],
+      [class*="st-key-team-b-player-"] [data-testid="column"],
+      [class*="st-key-mobile-team-player-"] [data-testid="column"] { min-width:0 !important; }
+      [class*="st-key-player-selection-row-"] [data-testid="column"]:first-child,
+      [class*="st-key-team-a-player-"] [data-testid="column"]:first-child,
+      [class*="st-key-team-b-player-"] [data-testid="column"]:first-child,
+      [class*="st-key-mobile-team-player-"] [data-testid="column"]:first-child {
+        width:100% !important; max-width:100% !important; flex:1 1 100% !important;
+      }
+      [class*="st-key-player-selection-row-"] [data-testid="column"]:last-child,
+      [class*="st-key-team-a-player-"] [data-testid="column"]:last-child,
+      [class*="st-key-team-b-player-"] [data-testid="column"]:last-child,
+      [class*="st-key-mobile-team-player-"] [data-testid="column"]:last-child {
+        position:absolute !important; right:.62rem !important; bottom:.35rem !important; z-index:3 !important;
+        width:2rem !important; max-width:2rem !important; flex:0 0 2rem !important;
+      }
+      [class*="st-key-player-selection-row-"] .prism-player-card,
+      [class*="st-key-team-a-player-"] .prism-player-card,
+      [class*="st-key-team-b-player-"] .prism-player-card,
+      [class*="st-key-mobile-team-player-"] .prism-player-card { margin:0 !important; height:100%; }
+      [data-testid="stCheckbox"] { display:flex; align-items:center; justify-content:center; min-width:1.7rem; }
+      [data-testid="stCheckbox"] label { gap:0 !important; }
+      [data-testid="stCheckbox"] label > div:last-child { display:none !important; }
+      [data-testid="stCheckbox"] input { accent-color:var(--prism-lime); }
       .prism-player-card.is-selected { border:1.5px solid var(--prism-lime); box-shadow:inset 4px 0 0 var(--prism-lime),0 4px 14px rgba(0,0,0,.18); background:linear-gradient(145deg,#20364F 0%,#14243A 100%); }
       .prism-role { color:#D8E1EF; font-weight:800; }
       .prism-total { color:var(--prism-lime); font-weight:850; }
@@ -124,14 +148,18 @@ st.markdown(
       .prism-bar-track { height:6px; background:#2A3B52; border-radius:99px; overflow:hidden; }
       .prism-bar-fill { height:100%; background:var(--prism-lime); border-radius:99px; }
       .prism-bar-value { font-size:.72rem; font-weight:750; text-align:right; }
+      .prism-mobile-summary-lines { display:none; }
+      .prism-mobile-summary-line { color:var(--prism-text); font-size:.66rem; line-height:1.45; white-space:nowrap; letter-spacing:-.015em; }
+      .prism-mobile-summary-line strong { color:var(--prism-lime); font-weight:850; }
 
       .st-key-team-a-card-select, .st-key-team-b-card-select { display:none !important; }
       .st-key-team-a-desktop, .st-key-team-b-desktop, .st-key-desktop-team-summaries { display:block; }
       .st-key-mobile-team-list, .st-key-mobile-summary-buttons { display:none; }
-      .st-key-team-a-player-*, .st-key-team-b-player-*, .st-key-mobile-team-player-* { margin-bottom:.55rem; }
 
       /* Player details below the team cards */
       .prism-player-card { border:1px solid rgba(210,224,245,.16); border-radius:14px; padding:.85rem .9rem; margin:0 0 .9rem 0; background:linear-gradient(145deg,rgba(25,42,64,.96),rgba(17,29,48,.96)); }
+      .prism-player-card.has-select-control { padding-bottom:.72rem; }
+      .prism-player-card.has-select-control .prism-player-card-skills { padding-right:2.05rem; }
       .prism-player-card.shared { border-color:rgba(183,243,74,.42); }
       .prism-player-card-top { display:flex; justify-content:space-between; gap:.5rem; align-items:center; }
       .prism-player-card-name { display:flex; align-items:center; flex-wrap:wrap; min-width:0; font-size:1.02rem; font-weight:850; }
@@ -170,17 +198,24 @@ st.markdown(
         .st-key-mobile-team-list, .st-key-mobile-summary-buttons { display:block; }
         /* Mobile summary cards use the same HTML card as desktop, sized to half-width columns. */
         .st-key-mobile-summary-buttons [data-testid="stHorizontalBlock"] {
-          display:flex !important; flex-direction:row !important; flex-wrap:nowrap !important; align-items:stretch !important; gap:.55rem !important;
+          display:grid !important; grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+          grid-auto-flow:column !important; align-items:stretch !important; gap:.45rem !important;
+          width:100% !important; min-width:0 !important; margin:0 !important;
         }
         .st-key-mobile-summary-buttons [data-testid="column"] {
-          width:calc(50% - .275rem) !important; min-width:0 !important;
-          max-width:calc(50% - .275rem) !important; flex:1 1 0 !important;
+          width:100% !important; min-width:0 !important; max-width:none !important;
+          flex:none !important; padding:0 !important; margin:0 !important;
         }
-        .st-key-mobile-summary-buttons .prism-team-card { min-height:0; height:100%; padding:.72rem .62rem; border-radius:14px; }
-        .st-key-mobile-summary-buttons .prism-team-title { font-size:.82rem; }
-        .st-key-mobile-summary-buttons .prism-team-score { font-size:1.3rem; }
-        .st-key-mobile-summary-buttons .prism-team-small { font-size:.62rem; line-height:1.35; }
-        .st-key-mobile-summary-buttons .prism-stat-pill { display:block; margin:.25rem 0 0; padding:.22rem .3rem; font-size:.6rem; line-height:1.35; overflow-wrap:anywhere; }
+        .st-key-mobile-summary-buttons .prism-team-card { min-width:0; min-height:0; height:100%; padding:.68rem .48rem; border-radius:14px; overflow:hidden; }
+        .st-key-mobile-summary-buttons .prism-team-summary-head { gap:.15rem; }
+        .st-key-mobile-summary-buttons .prism-selected-tag { display:none !important; }
+        .st-key-mobile-summary-buttons .prism-team-title { font-size:.8rem; }
+        .st-key-mobile-summary-buttons .prism-team-score { font-size:1.22rem; }
+        .st-key-mobile-summary-buttons .prism-team-small { font-size:.61rem; line-height:1.3; }
+        .st-key-mobile-summary-buttons .prism-stat-grid,
+        .st-key-mobile-summary-buttons .prism-role-count-pills { display:none !important; }
+        .st-key-mobile-summary-buttons .prism-mobile-summary-lines { display:block !important; margin-top:.42rem; }
+        .st-key-mobile-summary-buttons .prism-mobile-summary-line { font-size:clamp(.54rem, 2.3vw, .66rem); line-height:1.55; letter-spacing:-.025em; }
         .st-key-mobile-summary-buttons [data-testid="stButton"] { width:100% !important; margin-top:.4rem !important; }
         .st-key-mobile-summary-buttons [data-testid="stButton"] > button {
           width:100% !important; min-height:2.1rem !important; height:2.1rem !important; padding:.35rem .3rem !important;
@@ -265,49 +300,6 @@ def role_counts(team):
     return counts
 
 
-def team_skill_averages(team):
-    if not team:
-        return {"batting": 0.0, "bowling": 0.0, "fielding": 0.0}
-    return {skill: sum(float(p[skill]) for p in team) / len(team) for skill in ("batting", "bowling", "fielding")}
-
-
-def team_impact_counts(team):
-    """Count impact batters and bowlers using the shared config thresholds.
-
-    Batting ratings determine batter impact; bowling ratings determine bowler
-    impact. All-rounders may qualify in both categories. Elite and Strong are
-    mutually exclusive: Elite is checked first, and Strong is below Elite.
-    """
-    elite_threshold = float(IMPACT_THRESHOLDS["elite"])
-    strong_threshold = float(IMPACT_THRESHOLDS["strong"])
-    counts = {
-        "elite_batters": 0,
-        "elite_bowlers": 0,
-        "strong_batters": 0,
-        "strong_bowlers": 0,
-    }
-
-    for player in team:
-        is_batsman = bool(player.get("is_batsman", False))
-        is_bowler = bool(player.get("is_bowler", False))
-        batting = float(player.get("batting", 0) or 0)
-        bowling = float(player.get("bowling", 0) or 0)
-
-        if is_batsman:
-            if batting >= elite_threshold:
-                counts["elite_batters"] += 1
-            elif batting >= strong_threshold:
-                counts["strong_batters"] += 1
-
-        if is_bowler:
-            if bowling >= elite_threshold:
-                counts["elite_bowlers"] += 1
-            elif bowling >= strong_threshold:
-                counts["strong_bowlers"] += 1
-
-    return counts
-
-
 def render_skill_bar(label, value):
     value = max(0.0, min(10.0, float(value)))
     st.markdown(
@@ -321,38 +313,57 @@ def render_skill_bar(label, value):
 
 
 def render_team_summary(team_name, team, selected=False):
+    'Render total skills and impact counts provided by the backend.'
     stats = team_stats(team)
     roles = role_counts(team)
-    impact = team_impact_counts(team)
-    averages = team_skill_averages(team)
     selected_tag = '<span class="prism-selected-tag">PLAYERS SHOWN</span>' if selected else ''
     selected_class = " is-selected" if selected else ""
+
+    batting_total = float(stats.get("batting", 0.0) or 0.0)
+    bowling_total = float(stats.get("bowling", 0.0) or 0.0)
+    fielding_total = float(stats.get("fielding", 0.0) or 0.0)
+    strength_total = float(stats.get("strength", 0.0) or 0.0)
+    player_count = len(team)
+    max_skill_total = max(1.0, player_count * 10.0)
+
+    elite_batters = int(stats.get("elite_batters", 0) or 0)
+    elite_bowlers = int(stats.get("elite_bowlers", 0) or 0)
+    strong_batters = int(stats.get("strong_batters", 0) or 0)
+    strong_bowlers = int(stats.get("strong_bowlers", 0) or 0)
+    fielders = int(stats.get("fielders", 0) or 0)
+
     st.markdown(
         f'''<div class="prism-team-card{selected_class}">
           <div class="prism-team-summary-head"><div>
             <div class="prism-team-title">{html.escape(team_name)}</div>
-            <div class="prism-team-score">{float(stats['strength']):.2f}</div>
-            <div class="prism-team-small">TEAM STRENGTH · {len(team)} PLAYERS</div>
+            <div class="prism-team-score">{strength_total:.2f}</div>
+            <div class="prism-team-small">TEAM STRENGTH · {player_count} PLAYERS</div>
           </div>{selected_tag}</div>
           <div class="prism-stat-grid" style="margin-top:.55rem">
-            <span class="prism-stat-pill"><b>{impact['elite_batters']}</b> Elite Batters</span>
-            <span class="prism-stat-pill"><b>{impact['elite_bowlers']}</b> Elite Bowlers</span>
-            <span class="prism-stat-pill"><b>{impact['strong_batters']}</b> Strong Batters</span>
-            <span class="prism-stat-pill"><b>{impact['strong_bowlers']}</b> Strong Bowlers</span>
+            <span class="prism-stat-pill"><b>{elite_batters}</b> Elite Batters</span>
+            <span class="prism-stat-pill"><b>{elite_bowlers}</b> Elite Bowlers</span>
+            <span class="prism-stat-pill"><b>{strong_batters}</b> Strong Batters</span>
+            <span class="prism-stat-pill"><b>{strong_bowlers}</b> Strong Bowlers</span>
           </div>
-          <div style="margin-top:.25rem"><span class="prism-stat-pill"><b>{roles['batters']}</b> Batters</span>
+          <div class="prism-role-count-pills" style="margin-top:.25rem">
+            <span class="prism-stat-pill"><b>{roles['batters']}</b> Batters</span>
             <span class="prism-stat-pill"><b>{roles['bowlers']}</b> Bowlers</span>
             <span class="prism-stat-pill"><b>{roles['all_rounders']}</b> All-rounders</span>
-            <span class="prism-stat-pill"><b>{roles['field_players']}</b> Fielders</span></div>
-          <div class="prism-bar-row"><div class="prism-bar-label">Batting</div><div class="prism-bar-track"><div class="prism-bar-fill" style="width:{max(0.0,min(10.0,averages['batting'])) * 10:.1f}%"></div></div><div class="prism-bar-value">{averages['batting']:.2f}</div></div>
-          <div class="prism-bar-row"><div class="prism-bar-label">Bowling</div><div class="prism-bar-track"><div class="prism-bar-fill" style="width:{max(0.0,min(10.0,averages['bowling'])) * 10:.1f}%"></div></div><div class="prism-bar-value">{averages['bowling']:.2f}</div></div>
-          <div class="prism-bar-row"><div class="prism-bar-label">Fielding</div><div class="prism-bar-track"><div class="prism-bar-fill" style="width:{max(0.0,min(10.0,averages['fielding'])) * 10:.1f}%"></div></div><div class="prism-bar-value">{averages['fielding']:.2f}</div></div>
+            <span class="prism-stat-pill"><b>{roles['field_players']}</b> Fielders</span>
+          </div>
+          <div class="prism-mobile-summary-lines">
+            <div class="prism-mobile-summary-line">Bat <strong>{batting_total:.2f}</strong> · Elite {elite_batters} · Strong {strong_batters}</div>
+            <div class="prism-mobile-summary-line">Bowl <strong>{bowling_total:.2f}</strong> · Elite {elite_bowlers} · Strong {strong_bowlers}</div>
+            <div class="prism-mobile-summary-line">Field <strong>{fielding_total:.2f}</strong> · Fielder {fielders}</div>
+          </div>
+          <div class="prism-bar-row"><div class="prism-bar-label">Batting</div><div class="prism-bar-track"><div class="prism-bar-fill" style="width:{max(0.0,min(100.0,batting_total / max_skill_total * 100)):.1f}%"></div></div><div class="prism-bar-value">{batting_total:.2f}</div></div>
+          <div class="prism-bar-row"><div class="prism-bar-label">Bowling</div><div class="prism-bar-track"><div class="prism-bar-fill" style="width:{max(0.0,min(100.0,bowling_total / max_skill_total * 100)):.1f}%"></div></div><div class="prism-bar-value">{bowling_total:.2f}</div></div>
+          <div class="prism-bar-row"><div class="prism-bar-label">Fielding</div><div class="prism-bar-track"><div class="prism-bar-fill" style="width:{max(0.0,min(100.0,fielding_total / max_skill_total * 100)):.1f}%"></div></div><div class="prism-bar-value">{fielding_total:.2f}</div></div>
         </div>''',
         unsafe_allow_html=True,
     )
 
-
-def player_card_html(player, rank_lookup, shared_names=None, selected=False):
+def player_card_html(player, rank_lookup, shared_names=None, selected=False, selectable=False):
     """Return the shared player-card markup used on selection and team pages."""
     name = html.escape(str(player["name"]))
     role = html.escape(player_role(player))
@@ -365,6 +376,8 @@ def player_card_html(player, rank_lookup, shared_names=None, selected=False):
         classes.append("shared")
     if selected:
         classes.append("is-selected")
+    if selectable:
+        classes.append("has-select-control")
     shared_tag = '<span class="prism-shared-tag">SHARED</span>' if is_shared else ""
     return f"""<div class="{' '.join(classes)}">
       <div class="prism-player-card-top">
@@ -380,11 +393,42 @@ def player_card_html(player, rank_lookup, shared_names=None, selected=False):
     </div>"""
 
 
-def render_player_card(player, rank_lookup, shared_names=None):
-    st.markdown(
-        player_card_html(player, rank_lookup, shared_names),
-        unsafe_allow_html=True,
-    )
+def render_player_card(
+    player,
+    rank_lookup,
+    shared_names=None,
+    *,
+    selected=False,
+    checkbox_key=None,
+    checkbox_disabled=False,
+    container_key=None,
+    on_change=None,
+):
+    'Render the shared HTML card, with its checkbox visually overlaid inside the card.'
+    name = player["name"]
+    with st.container(key=container_key) if container_key else st.container():
+        card_col, checkbox_col = st.columns([1, 0.001], gap="small", vertical_alignment="center")
+        with card_col:
+            st.markdown(
+                player_card_html(
+                    player, rank_lookup, shared_names,
+                    selected=selected, selectable=checkbox_key is not None,
+                ),
+                unsafe_allow_html=True,
+            )
+        with checkbox_col:
+            if checkbox_key is not None:
+                # Disabled checked controls serve as roster indicators in Team View.
+                if checkbox_key not in st.session_state and checkbox_disabled:
+                    st.session_state[checkbox_key] = True
+                st.checkbox(
+                    f"Select {name}",
+                    key=checkbox_key,
+                    disabled=checkbox_disabled,
+                    label_visibility="collapsed",
+                    on_change=on_change,
+                    args=(name,) if on_change else None,
+                )
 
 
 def assignment_from_teams(team_result):
@@ -574,23 +618,20 @@ if session.match_number == 0 or edit_mode:
     # as the selection control. This avoids Streamlit button labels flattening into text.
     for player in filtered_players:
         name = player["name"]
-        rank = rank_lookup[name] # added by Vaibhav
+        rank = rank_lookup[name]  # Player rank comes from the master-ranked list.
         is_selected = name in selected_names
         checkbox_key = selection_key(name)
         if checkbox_key not in st.session_state:
             st.session_state[checkbox_key] = is_selected
-        with st.container(key=f"player-selection-row-{'selected-' if is_selected else ''}{rank}"):
-            card_col, select_col = st.columns([12, 1], vertical_alignment="center", gap="small")
-            with card_col:
-                st.markdown(
-                    player_card_html(player, rank_lookup, selected=is_selected),
-                    unsafe_allow_html=True,
-                )
-            with select_col:
-                st.checkbox(
-                    f"Select {name}", key=checkbox_key, label_visibility="collapsed",
-                    on_change=on_player_checkbox_change, args=(name,),
-                )
+        render_player_card(
+            player,
+            rank_lookup,
+            selected=is_selected,
+            checkbox_key=checkbox_key,
+            checkbox_disabled=False,
+            container_key=f"player-selection-row-{'selected-' if is_selected else ''}{rank}",
+            on_change=on_player_checkbox_change,
+        )
 
 
 
@@ -639,16 +680,32 @@ if session.current_teams and not st.session_state.get("edit_players_mode", False
     with desktop_a:
         with st.container(key="team-a-desktop"):
             for player in ordered_a:
-                render_player_card(player, rank_lookup, shared_names)
+                rank = rank_lookup[player["name"]]
+                render_player_card(
+                    player, rank_lookup, shared_names, selected=False,
+                    checkbox_key=f"team_view_a_checkbox_{rank}", checkbox_disabled=True,
+                    container_key=f"team-a-player-{rank}",
+                )
     with desktop_b:
         with st.container(key="team-b-desktop"):
             for player in ordered_b:
-                render_player_card(player, rank_lookup, shared_names)
+                rank = rank_lookup[player["name"]]
+                render_player_card(
+                    player, rank_lookup, shared_names, selected=False,
+                    checkbox_key=f"team_view_b_checkbox_{rank}", checkbox_disabled=True,
+                    container_key=f"team-b-player-{rank}",
+                )
 
     with st.container(key="mobile-team-list"):
-        mobile_team = ordered_a if st.session_state.mobile_team_view == "A" else ordered_b
+        mobile_team_key = st.session_state.mobile_team_view
+        mobile_team = ordered_a if mobile_team_key == "A" else ordered_b
         for player in mobile_team:
-            render_player_card(player, rank_lookup, shared_names)
+            rank = rank_lookup[player["name"]]
+            render_player_card(
+                player, rank_lookup, shared_names, selected=False,
+                checkbox_key=f"mobile_team_view_checkbox_{mobile_team_key}_{rank}", checkbox_disabled=True,
+                container_key=f"mobile-team-player-{rank}",
+            )
 
     # Controls stay at the bottom of the team view.
     action_edit, action_reset = st.columns(2, gap="medium")
