@@ -574,6 +574,7 @@ if session.match_number == 0 or edit_mode:
     # as the selection control. This avoids Streamlit button labels flattening into text.
     for player in filtered_players:
         name = player["name"]
+        rank = rank_lookup[name] # added by Vaibhav
         is_selected = name in selected_names
         checkbox_key = selection_key(name)
         if checkbox_key not in st.session_state:
