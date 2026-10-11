@@ -66,7 +66,7 @@ ROLE_PENALTIES = {
 # strength of both teams in addition to individual skill totals.
 # ------------------------------------------------------------
 
-OVERALL_STRENGTH_PENALTY = 1.00
+OVERALL_STRENGTH_PENALTY = 0.90
 
 
 # ------------------------------------------------------------
